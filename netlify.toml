@@ -8,9 +8,9 @@
 
 [dev]
   command = "npm run dev"
-  port = 9999
+  framework = "#custom"
   targetPort = 3000
-  functionsPort = 9999
+  port = 9999
 
 [[redirects]]
   from = "/*"
