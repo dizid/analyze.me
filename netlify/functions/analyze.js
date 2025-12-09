@@ -65,7 +65,7 @@ exports.handler = async (event, context) => {
     }
 
     // Parse and validate request
-    const { content, prompt, model = 'grok-beta', temperature = 0.7, max_tokens = 2000 } = JSON.parse(event.body)
+    const { content, prompt, model = 'grok-3', temperature = 0.7, max_tokens = 2000 } = JSON.parse(event.body)
 
     if (!content || !prompt) {
       return {
