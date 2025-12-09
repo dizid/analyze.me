@@ -2,6 +2,8 @@
 @import "@fontsource/orbitron/400.css";
 @import "@fontsource/orbitron/700.css";
 
+@source "../../**/*.{vue,js,ts,jsx,tsx,html}";
+
 @theme {
   /* Cyberpunk Color Palette */
   --color-cyberpunk-black: #0a0a0f;
@@ -26,11 +28,6 @@
   --shadow-neon-pink: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #ff00ff80;
   --shadow-neon-lime: 0 0 10px #00ff41, 0 0 20px #00ff41, 0 0 30px #00ff4180;
   --shadow-panel: 0 8px 32px rgba(0, 255, 238, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.1);
-
-  /* Animations */
-  --animate-glitch: glitch 1s linear infinite;
-  --animate-neon-pulse: neonPulse 2s ease-in-out infinite;
-  --animate-flicker: flicker 0.15s infinite;
 
   /* Backdrop Blur */
   --backdrop-blur-cyberpunk: 10px;
@@ -72,60 +69,215 @@ body {
 }
 
 /* Component Utility Classes */
-@layer components {
-  .cyberpunk-panel {
-    background-color: var(--color-cyberpunk-panel);
-    border: 1px solid var(--color-cyberpunk-cyan-glow);
-    border-radius: 0.5rem;
-    padding: 1.5rem;
-    box-shadow: var(--shadow-panel);
-    backdrop-filter: blur(var(--backdrop-blur-cyberpunk));
-    position: relative;
-    overflow: hidden;
-  }
+.cyberpunk-panel {
+  background-color: var(--color-cyberpunk-panel);
+  border: 1px solid var(--color-cyberpunk-cyan-glow);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(var(--backdrop-blur-cyberpunk));
+  position: relative;
+  overflow: hidden;
+}
 
-  .cyberpunk-panel::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: linear-gradient(to right, transparent, var(--color-cyberpunk-cyan), transparent);
-    opacity: 0.5;
-  }
+.cyberpunk-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(to right, transparent, var(--color-cyberpunk-cyan), transparent);
+  opacity: 0.5;
+}
 
-  .neon-button {
-    padding: 0.75rem 1.5rem;
-    background: transparent;
-    border: 2px solid var(--color-cyberpunk-cyan);
-    color: var(--color-cyberpunk-cyan);
-    font-weight: bold;
-    border-radius: 0.25rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    transition: all 0.3s;
-    position: relative;
-    overflow: hidden;
-  }
+.neon-button {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: 2px solid var(--color-cyberpunk-cyan);
+  color: var(--color-cyberpunk-cyan);
+  font-weight: bold;
+  border-radius: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
 
-  .neon-button:hover {
-    box-shadow: var(--shadow-neon-cyan);
-    background-color: rgba(0, 255, 238, 0.1);
-  }
+.neon-button:hover {
+  box-shadow: var(--shadow-neon-cyan);
+  background-color: rgba(0, 255, 238, 0.1);
+}
 
-  .neon-button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 0;
-    height: 100%;
-    background-color: rgba(0, 255, 238, 0.2);
-    transition: width 0.3s;
-  }
+.neon-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background-color: rgba(0, 255, 238, 0.2);
+  transition: width 0.3s;
+}
 
-  .neon-button:hover::before {
-    width: 100%;
+.neon-button:hover::before {
+  width: 100%;
+}
+
+/* Glitch Text Effect */
+.glitch-text {
+  position: relative;
+  animation: glitch 3s infinite;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.glitch-text::before {
+  left: 2px;
+  text-shadow: -2px 0 #ff00ff;
+  clip: rect(44px, 450px, 56px, 0);
+  animation: glitch-anim 5s infinite linear alternate-reverse;
+}
+
+.glitch-text::after {
+  left: -2px;
+  text-shadow: -2px 0 #00ffee;
+  clip: rect(44px, 450px, 56px, 0);
+  animation: glitch-anim2 5s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim {
+  0% { clip: rect(31px, 9999px, 94px, 0); }
+  20% { clip: rect(70px, 9999px, 71px, 0); }
+  40% { clip: rect(65px, 9999px, 29px, 0); }
+  60% { clip: rect(48px, 9999px, 36px, 0); }
+  80% { clip: rect(85px, 9999px, 15px, 0); }
+  100% { clip: rect(55px, 9999px, 67px, 0); }
+}
+
+@keyframes glitch-anim2 {
+  0% { clip: rect(65px, 9999px, 100px, 0); }
+  20% { clip: rect(52px, 9999px, 74px, 0); }
+  40% { clip: rect(79px, 9999px, 85px, 0); }
+  60% { clip: rect(15px, 9999px, 22px, 0); }
+  80% { clip: rect(94px, 9999px, 53px, 0); }
+  100% { clip: rect(35px, 9999px, 8px, 0); }
+}
+
+/* Holographic Overlay Effect */
+.holographic-overlay {
+  position: relative;
+}
+
+.holographic-overlay::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(0, 255, 238, 0.1) 50%,
+    transparent 70%
+  );
+  pointer-events: none;
+  animation: hologram-scan 3s linear infinite;
+}
+
+@keyframes hologram-scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+/* Pulse Animation for Buttons/Elements */
+.pulse-neon {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px #00ffee, 0 0 20px #00ffee, 0 0 30px #00ffee80;
   }
+  50% {
+    box-shadow: 0 0 20px #00ffee, 0 0 30px #00ffee, 0 0 40px #00ffee;
+  }
+}
+
+/* Scan Line Effect */
+.scan-lines {
+  position: relative;
+  overflow: hidden;
+}
+
+.scan-lines::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 255, 238, 0.03) 0px,
+    transparent 1px,
+    transparent 2px,
+    rgba(0, 255, 238, 0.03) 3px
+  );
+  pointer-events: none;
+  animation: scan 8s linear infinite;
+}
+
+@keyframes scan {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(50px); }
+}
+
+/* Loading Spinner Animation */
+.spinner-neon {
+  border: 4px solid rgba(0, 255, 238, 0.3);
+  border-top-color: #00ffee;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Fade Transitions */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Slide Transitions */
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.3s, opacity 0.3s;
+}
+
+.slide-enter-from {
+  transform: translateY(-20px);
+  opacity: 0;
+}
+
+.slide-leave-to {
+  transform: translateY(20px);
+  opacity: 0;
 }
