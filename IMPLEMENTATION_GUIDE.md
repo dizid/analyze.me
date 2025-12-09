@@ -50,7 +50,7 @@ Edit `.env.local`:
 ```env
 VITE_GOOGLE_CLIENT_ID=your_google_client_id_from_step_2
 VITE_GOOGLE_API_KEY=your_google_api_key_from_step_2
-VITE_NETLIFY_FUNCTIONS_URL=http://localhost:8888/.netlify/functions
+VITE_NETLIFY_FUNCTIONS_URL=http://localhost:9999/.netlify/functions
 ```
 
 For Netlify (when deploying):
@@ -71,7 +71,7 @@ Visit: [http://localhost:3000](http://localhost:3000)
 ```bash
 npm run netlify:dev
 ```
-Visit: [http://localhost:8888](http://localhost:8888)
+Visit: [http://localhost:9999](http://localhost:9999)
 
 This starts both:
 - Vite dev server (for frontend)

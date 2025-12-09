@@ -115,7 +115,7 @@ Now you'll create the credentials for user authentication.
 - Click **"+ ADD URI"**
 - For local development, add:
   - `http://localhost:3000`
-  - `http://localhost:8888` (for Netlify Dev)
+  - `http://localhost:9999` (for Netlify Dev)
 - For production (add these later when you deploy):
   - `https://yourapp.netlify.app` (replace with your actual Netlify URL)
 
@@ -123,7 +123,7 @@ Now you'll create the credentials for user authentication.
 - Click **"+ ADD URI"**
 - For local development, add:
   - `http://localhost:3000`
-  - `http://localhost:8888`
+  - `http://localhost:9999`
 - For production (add these later):
   - `https://yourapp.netlify.app`
 
@@ -165,7 +165,7 @@ The API Key is needed for the Google Picker to work.
   - Click **"+ ADD AN ITEM"**
   - Add:
     - `http://localhost:3000/*`
-    - `http://localhost:8888/*`
+    - `http://localhost:9999/*`
     - `https://yourapp.netlify.app/*` (add later when deployed)
 - Click **"SAVE"**
 
@@ -193,7 +193,7 @@ VITE_GOOGLE_CLIENT_ID=123456789-abc123def456.apps.googleusercontent.com
 VITE_GOOGLE_API_KEY=AIzaSyA1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q
 
 # Netlify Function URL (local development)
-VITE_NETLIFY_FUNCTIONS_URL=http://localhost:8888/.netlify/functions
+VITE_NETLIFY_FUNCTIONS_URL=http://localhost:9999/.netlify/functions
 ```
 
 **Replace** the placeholder values with your actual:

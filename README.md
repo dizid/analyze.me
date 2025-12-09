@@ -68,7 +68,7 @@ Edit `.env.local` and add your credentials:
 ```env
 VITE_GOOGLE_CLIENT_ID=your_google_client_id_here
 VITE_GOOGLE_API_KEY=your_google_api_key_here
-VITE_NETLIFY_FUNCTIONS_URL=http://localhost:8888/.netlify/functions
+VITE_NETLIFY_FUNCTIONS_URL=http://localhost:9999/.netlify/functions
 ```
 
 For Netlify Functions (set in Netlify dashboard later):
