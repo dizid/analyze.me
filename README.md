@@ -255,13 +255,37 @@ The app features a custom Tailwind CSS v4 theme with:
 3. **Set Environment Variable**:
    - In Netlify: Site settings → Environment variables
    - Add: `XAI_API_KEY` = (your xAI API key)
+   - Add: `VITE_GOOGLE_CLIENT_ID` = (your Google Client ID)
+   - Add: `VITE_GOOGLE_API_KEY` = (your Google API Key)
 
 4. **Update Google OAuth**:
    - Add your Netlify URL to authorized origins and redirect URIs
    - See [GOOGLE_SETUP.md](./GOOGLE_SETUP.md) Step 8 for details
 
-5. **Deploy**:
+5. **Publish OAuth App to Production**:
+   - By default, Google OAuth is in "Test" mode (max 100 users)
+   - To make your app public, you need to publish to Production
+   - See [GOOGLE_SETUP.md](./GOOGLE_SETUP.md) **Step 9** for complete guide
+   - **Quick steps**: Add privacy policy URL → Click "PUBLISH APP" in Google Console
+   - **Note**: App will show "unverified" warning (normal for personal apps)
+   - **Optional**: Apply for verification to remove warning (4-6 weeks)
+
+6. **Deploy**:
    - Push to main branch or click "Deploy site"
+
+### Production Notes
+
+**OAuth Consent Screen Modes:**
+- **Test Mode** (default): Only 100 test users, good for development
+- **Production Mode**: Any Google user can access, required for public deployment
+- See Step 9 in [GOOGLE_SETUP.md](./GOOGLE_SETUP.md) for publishing guide
+
+**"Unverified App" Warning:**
+- Your app will show "Google hasn't verified this app" on first sign-in
+- This is normal for personal/small projects using Google APIs
+- Users click "Advanced" → "Go to [App Name]" to proceed
+- App functions normally after accepting
+- Optional: Apply for full verification to remove warning
 
 ## Testing
 

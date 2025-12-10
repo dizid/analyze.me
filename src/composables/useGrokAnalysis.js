@@ -19,7 +19,7 @@ export function useGrokAnalysis() {
         {
           content: documentContent,
           prompt: prompt,
-          model: options.model || 'grok-beta',
+          model: options.model || 'grok-4-fast-reasoning',
           temperature: options.temperature || 0.7,
           max_tokens: options.max_tokens || 2000,
         },
@@ -35,7 +35,7 @@ export function useGrokAnalysis() {
         content: response.data.analysis,
         timestamp: new Date().toISOString(),
         promptUsed: prompt,
-        model: options.model || 'grok-beta',
+        model: options.model || 'grok-4-fast-reasoning',
         usage: response.data.usage,
       }
 

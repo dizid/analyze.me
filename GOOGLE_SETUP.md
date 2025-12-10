@@ -283,9 +283,176 @@ When you're ready to deploy:
 ### 8.4 Update OAuth Consent Screen
 - Go to **OAuth consent screen**
 - Add your production domain to **Authorized domains**
-- If you want anyone to use your app (not just test users):
-  - Click **"PUBLISH APP"**
-  - Click **"CONFIRM"**
+- See **Step 9** below for full publishing guide
+
+---
+
+## Step 9: Publishing from Test to Production
+
+By default, your OAuth consent screen is in "Testing" mode, which limits access to 100 test users. To make your app available to all Google users, you need to publish to Production.
+
+### 9.1 Understanding Test vs Production Mode
+
+**Test Mode (Default)**
+- Only users in "Test users" list can authenticate
+- Up to 100 test users allowed
+- No verification required
+- Good for development and internal testing
+
+**Production Mode**
+- Any Google user can authenticate
+- No user limit
+- May show "unverified app" warning
+- Required for public apps
+
+### 9.2 Prerequisites for Publishing
+
+Before publishing, you must have:
+
+1. **Privacy Policy (Required)**
+   - Create a privacy policy page explaining your data usage
+   - Must be publicly accessible URL
+   - Should cover: data collection, usage, retention, third parties
+   - You already have this at `/privacy-policy` (see PrivacyPolicy.vue)
+
+2. **Terms of Service (Recommended)**
+   - Optional but recommended for professional apps
+   - Available at `/terms` (see TermsOfService.vue)
+
+3. **Authorized Domain**
+   - Your Netlify production domain (e.g., `yourapp.netlify.app`)
+   - Must be added to OAuth consent screen
+
+### 9.3 Add Privacy Policy URL
+
+**Navigate to OAuth Consent Screen:**
+- Google Cloud Console → APIs & Services → OAuth consent screen
+- Click **"EDIT APP"**
+
+**Add Required URLs:**
+- **Application home page**: `https://yourapp.netlify.app`
+- **Privacy policy link**: `https://yourapp.netlify.app/privacy-policy`
+- **Terms of service link**: `https://yourapp.netlify.app/terms` (optional)
+- **Authorized domains**: Add `yourapp.netlify.app`
+
+**Save Changes:**
+- Click **"SAVE AND CONTINUE"** through all pages
+- Click **"BACK TO DASHBOARD"**
+
+### 9.4 Publish Your App
+
+**In OAuth Consent Screen Dashboard:**
+1. Look for **"Publishing status: Testing"**
+2. Click **"PUBLISH APP"** button
+3. Read the publishing terms
+4. Click **"CONFIRM"**
+
+**Wait for Status Update:**
+- Status should change to "In Production" within 1-2 minutes
+- Refresh the page if needed
+
+### 9.5 Expected Results After Publishing
+
+**Option A: Unverified Production (Most Likely)**
+
+Your app will go live immediately but show an "unverified app" warning:
+
+- Any Google user can now authenticate
+- First-time users see: "Google hasn't verified this app"
+- Users must click **"Advanced"** → **"Go to [App Name] (unsafe)"**
+- After accepting, app works normally
+- This is **completely normal** for personal/small projects
+
+**Option B: Verification Required**
+
+Google may require full verification for sensitive scopes:
+
+- You'll see a message: "Verification required"
+- Verification process takes 4-6 weeks
+- See section 9.6 below for verification steps
+
+### 9.6 App Verification (Optional)
+
+Full verification removes the "unverified app" warning. This is **optional** and only needed for:
+- Public-facing apps with large user base
+- Apps requiring professional appearance
+- Commercial applications
+
+**When to Apply:**
+- **Skip for MVP/Personal Use**: Unverified mode works fine
+- **Apply for Public Launch**: Better user trust and experience
+
+**Verification Requirements:**
+1. **Privacy Policy** - Public URL (you have this)
+2. **Homepage** - Clear description of your app
+3. **Demo Video** - YouTube video showing app functionality (optional but helpful)
+4. **Domain Verification** - Verify ownership of your domain
+5. **Scope Justification** - Explain why you need each OAuth scope
+
+**How to Apply:**
+1. Go to **OAuth consent screen**
+2. Click **"Prepare for verification"**
+3. Fill out the verification questionnaire:
+   - Explain how your app uses Drive/Docs APIs
+   - Provide demo credentials
+   - Upload demo video (if available)
+4. Submit for review
+5. Wait 4-6 weeks for Google's response
+
+**After Approval:**
+- "Verified" badge appears on consent screen
+- No warning shown to users
+- Professional appearance
+
+### 9.7 Testing Production Mode
+
+**Test with a non-test-user account:**
+
+1. **Clear browser cache** and sign out of Google
+2. Open your deployed app: `https://yourapp.netlify.app`
+3. Click **"Connect Google"**
+4. Sign in with a Google account **NOT** in your test users list
+5. You should see either:
+   - "Unverified app" warning (click Advanced → Continue)
+   - Normal consent screen (if verified)
+6. Grant permissions
+7. Verify app works correctly
+
+### 9.8 Troubleshooting Publishing
+
+**Error: "Add privacy policy before publishing"**
+- You must add a privacy policy URL to OAuth consent screen
+- URL must be publicly accessible
+- Deploy your app first, then add the URL
+
+**Error: "Domain not verified"**
+- Add your domain to "Authorized domains" in OAuth consent screen
+- Format: `yourapp.netlify.app` (no https://)
+- Wait 5-10 minutes for verification
+
+**Warning: "This app needs verification"**
+- Your app uses sensitive scopes (Drive, Docs)
+- You can still publish to unverified production
+- Full verification is optional (4-6 weeks)
+
+**Users can't access after publishing:**
+- Clear browser cache
+- Check that app status shows "In Production"
+- Verify authorized domains are correct
+- Test with incognito/private browsing
+
+### 9.9 Recommended Approach
+
+**For Most Users:**
+1. ✅ Publish to unverified production (immediate)
+2. ✅ Use app with "unverified" warning (works fine)
+3. ⏰ Apply for verification later if needed
+
+**For Professional/Public Apps:**
+1. ✅ Create comprehensive privacy policy
+2. ✅ Prepare demo video
+3. ✅ Apply for verification before launch
+4. ⏰ Wait 4-6 weeks for approval
 
 ---
 

@@ -65,7 +65,7 @@ exports.handler = async (event, context) => {
     }
 
     // Parse and validate request
-    const { content, prompt, model = 'grok-3', temperature = 0.7, max_tokens = 2000 } = JSON.parse(event.body)
+    const { content, prompt, model = 'grok-4-fast-reasoning', temperature = 0.7, max_tokens = 1000 } = JSON.parse(event.body)
 
     if (!content || !prompt) {
       return {
@@ -102,7 +102,7 @@ exports.handler = async (event, context) => {
         messages: [
           {
             role: 'system',
-            content: 'You are a thoughtful personal document analyst. Provide insightful, constructive analysis based on the document content and prompt provided. Format your response in clear markdown with proper headings, lists, and emphasis where appropriate.',
+            content: 'You are a personal document analyst. Provide insightful analysis based on the document and prompt. Use clear markdown formatting.',
           },
           {
             role: 'user',
@@ -117,7 +117,7 @@ exports.handler = async (event, context) => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${XAI_API_KEY}`,
         },
-        timeout: 50000, // 50 second timeout
+        timeout: 25000, // 25 second timeout (before Netlify's 30s limit)
       }
     )
 
