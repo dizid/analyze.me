@@ -1,7 +1,8 @@
 import { ref, computed } from 'vue'
 import axios from 'axios'
 
-const FUNCTIONS_URL = import.meta.env.VITE_NETLIFY_FUNCTIONS_URL
+// Use relative URL - works in production and with Vite proxy in development
+const FUNCTIONS_URL = import.meta.env.VITE_NETLIFY_FUNCTIONS_URL || '/.netlify/functions'
 
 export function useGrokAnalysis() {
   const isAnalyzing = ref(false)
