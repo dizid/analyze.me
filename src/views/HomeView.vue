@@ -14,9 +14,9 @@
 
     <!-- Dashboard Grid -->
     <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Left Column: Google Auth & Document Selection -->
+      <!-- Left Column: Data Sources & Document Selection -->
       <div class="lg:col-span-1 space-y-6">
-        <GoogleAuth
+        <DataSourceSelector
           @document-selected="handleDocumentSelected"
           @document-cleared="handleDocumentCleared"
         />
@@ -71,7 +71,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import GoogleAuth from '@/components/GoogleAuth.vue'
+import DataSourceSelector from '@/components/DataSourceSelector.vue'
 import GrokAnalysis from '@/components/GrokAnalysis.vue'
 import ResultDisplay from '@/components/ResultDisplay.vue'
 import ErrorDialog from '@/components/ErrorDialog.vue'

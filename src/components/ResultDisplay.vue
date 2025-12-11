@@ -25,7 +25,17 @@
         v-html="renderedContent"
       ></div>
 
-      <!-- Action Buttons -->
+      <!-- Post-Analysis: Action Items -->
+      <div class="pt-4 border-t border-gray-700">
+        <ActionItems :analysisContent="result.content" />
+      </div>
+
+      <!-- Post-Analysis: Professional Recommendations -->
+      <div class="pt-4 border-t border-gray-700">
+        <ProfessionalRecommendations :analysisContent="result.content" />
+      </div>
+
+      <!-- Export Action Buttons -->
       <div class="flex gap-3 pt-4 border-t border-gray-700">
         <CyberpunkButton
           variant="cyan"
@@ -62,6 +72,8 @@
 import { ref, computed } from 'vue'
 import CyberpunkPanel from '@/components/ui/CyberpunkPanel.vue'
 import CyberpunkButton from '@/components/ui/CyberpunkButton.vue'
+import ActionItems from '@/components/ActionItems.vue'
+import ProfessionalRecommendations from '@/components/ProfessionalRecommendations.vue'
 import { useMarkdownRenderer } from '@/composables/useMarkdownRenderer'
 import { usePdfExport } from '@/composables/usePdfExport'
 
