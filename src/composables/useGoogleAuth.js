@@ -225,6 +225,7 @@ export function useGoogleAuth() {
     user: computed(() => user.value),
     error: computed(() => error.value),
     isLoading: computed(() => isLoading.value),
+    accessToken: computed(() => accessToken.value),
     initializeGoogleAuth,
     signIn,
     signOut,

@@ -1,4 +1,4 @@
-const axios = require('axios')
+import axios from 'axios'
 
 const XAI_API_URL = 'https://api.x.ai/v1/chat/completions'
 const XAI_API_KEY = process.env.XAI_API_KEY
@@ -24,7 +24,7 @@ const checkRateLimit = (identifier) => {
   return true
 }
 
-exports.handler = async (event, context) => {
+export const handler = async (event, context) => {
   // CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',

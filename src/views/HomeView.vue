@@ -1,7 +1,15 @@
 <template>
   <div class="min-h-screen p-4 md:p-8">
     <!-- Header -->
-    <header class="mb-8 text-center">
+    <header class="mb-8 text-center relative">
+      <!-- CEO Dashboard Button -->
+      <button
+        class="absolute right-0 top-0 neon-button px-4 py-2 text-sm border-cyberpunk-lime text-cyberpunk-lime hover:shadow-[var(--shadow-neon-lime)]"
+        @click="$emit('navigate', 'ceo-dashboard')"
+      >
+        CEO Dashboard
+      </button>
+
       <h1 class="text-4xl md:text-6xl font-bold mb-2">
         <GlitchText text="GROK" color="cyan" class="animate-neon-pulse" />
         <span class="text-cyberpunk-pink"> AI </span>
@@ -79,6 +87,8 @@ import CyberpunkPanel from '@/components/ui/CyberpunkPanel.vue'
 import GlitchText from '@/components/ui/GlitchText.vue'
 import { useAnalysisHistory } from '@/composables/useAnalysisHistory'
 import { handleError } from '@/utils/errorHandler'
+
+defineEmits(['navigate'])
 
 const { history, addToHistory, clearHistory } = useAnalysisHistory()
 
