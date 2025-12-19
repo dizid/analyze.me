@@ -5,6 +5,15 @@
       v-else-if="currentView === 'ceo-dashboard'"
       @back="currentView = 'home'"
     />
+    <ProfileView
+      v-else-if="currentView === 'profile'"
+      @back="currentView = 'home'"
+      @navigate="handleNavigate"
+    />
+    <AchievementsView
+      v-else-if="currentView === 'achievements'"
+      @back="currentView = 'home'"
+    />
     <PrivacyPolicyView
       v-else-if="currentView === 'privacy'"
       @back="currentView = 'home'"
@@ -14,7 +23,7 @@
       @back="currentView = 'home'"
     />
 
-    <Footer v-if="currentView !== 'ceo-dashboard'" @navigate="handleNavigate" />
+    <Footer v-if="!['ceo-dashboard', 'profile', 'achievements'].includes(currentView)" @navigate="handleNavigate" />
   </div>
 </template>
 
@@ -22,6 +31,8 @@
 import { ref } from 'vue'
 import HomeView from './views/HomeView.vue'
 import CeoDashboardView from './views/CeoDashboardView.vue'
+import ProfileView from './views/ProfileView.vue'
+import AchievementsView from './views/AchievementsView.vue'
 import PrivacyPolicyView from './views/PrivacyPolicyView.vue'
 import TermsOfServiceView from './views/TermsOfServiceView.vue'
 import Footer from './components/Footer.vue'

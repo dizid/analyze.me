@@ -2,13 +2,29 @@
   <div class="min-h-screen p-4 md:p-8">
     <!-- Header -->
     <header class="mb-8 text-center relative">
-      <!-- CEO Dashboard Button -->
-      <button
-        class="absolute right-0 top-0 neon-button px-4 py-2 text-sm border-cyberpunk-lime text-cyberpunk-lime hover:shadow-[var(--shadow-neon-lime)]"
-        @click="$emit('navigate', 'ceo-dashboard')"
-      >
-        CEO Dashboard
-      </button>
+      <!-- Top Bar: Profile & CEO Dashboard -->
+      <div class="flex justify-between items-start mb-4">
+        <!-- Profile Button -->
+        <button
+          class="neon-button px-4 py-2 text-sm border-cyberpunk-cyan text-cyberpunk-cyan hover:shadow-[var(--shadow-neon-cyan)]"
+          @click="$emit('navigate', 'profile')"
+        >
+          Profile
+        </button>
+
+        <!-- CEO Dashboard Button -->
+        <button
+          class="neon-button px-4 py-2 text-sm border-cyberpunk-lime text-cyberpunk-lime hover:shadow-[var(--shadow-neon-lime)]"
+          @click="$emit('navigate', 'ceo-dashboard')"
+        >
+          CEO Dashboard
+        </button>
+      </div>
+
+      <!-- Gamification Bar -->
+      <div class="flex justify-center mb-6">
+        <GamificationBar @show-achievements="$emit('navigate', 'achievements')" />
+      </div>
 
       <h1 class="text-4xl md:text-6xl font-bold mb-2">
         <GlitchText text="GROK" color="cyan" class="animate-neon-pulse" />
@@ -74,6 +90,16 @@
       :on-retry="errorRetryAction"
       @close="showError = false"
     />
+
+    <!-- Achievement Unlock Modal -->
+    <AchievementUnlockModal
+      :visible="showAchievementModal"
+      :achievement="currentAchievement"
+      @close="handleAchievementModalClose"
+    />
+
+    <!-- XP Notifications -->
+    <XPGainNotification ref="xpNotificationRef" />
   </div>
 </template>
 
@@ -85,12 +111,23 @@ import ResultDisplay from '@/components/ResultDisplay.vue'
 import ErrorDialog from '@/components/ErrorDialog.vue'
 import CyberpunkPanel from '@/components/ui/CyberpunkPanel.vue'
 import GlitchText from '@/components/ui/GlitchText.vue'
+import GamificationBar from '@/components/gamification/GamificationBar.vue'
+import AchievementUnlockModal from '@/components/gamification/AchievementUnlockModal.vue'
+import XPGainNotification from '@/components/gamification/XPGainNotification.vue'
 import { useAnalysisHistory } from '@/composables/useAnalysisHistory'
+import { useGamification } from '@/composables/useGamification'
 import { handleError } from '@/utils/errorHandler'
 
 defineEmits(['navigate'])
 
 const { history, addToHistory, clearHistory } = useAnalysisHistory()
+const {
+  trackAnalysis,
+  trackDataSourceConnected,
+  getPendingUnlock,
+  hasPendingUnlocks,
+  formatXPReason,
+} = useGamification()
 
 const selectedDocument = ref(null)
 const analysisResult = ref(null)
@@ -98,9 +135,23 @@ const showError = ref(false)
 const errorMessage = ref('')
 const errorRetryAction = ref(null)
 
+// Gamification state
+const showAchievementModal = ref(false)
+const currentAchievement = ref(null)
+const xpNotificationRef = ref(null)
+
 const handleDocumentSelected = (document) => {
   selectedDocument.value = document
   analysisResult.value = null // Clear previous results
+
+  // Track data source connection
+  if (document?.source) {
+    const result = trackDataSourceConnected(document.source)
+    if (result?.isNew) {
+      showXPNotifications(result.xpResult)
+      processNewAchievements(result.newAchievements)
+    }
+  }
 }
 
 const handleDocumentCleared = () => {
@@ -115,6 +166,63 @@ const handleAnalysisComplete = (result) => {
   if (selectedDocument.value) {
     addToHistory(result, selectedDocument.value)
   }
+
+  // Track gamification
+  const gamificationResult = trackAnalysis(result, selectedDocument.value)
+
+  // Show XP notifications
+  if (gamificationResult.xpResults?.length > 0) {
+    gamificationResult.xpResults.forEach(xpResult => {
+      showXPNotifications(xpResult)
+    })
+  }
+
+  // Check for level up
+  if (gamificationResult.levelUp) {
+    xpNotificationRef.value?.addNotification({
+      isLevelUp: true,
+      newLevel: gamificationResult.newLevel,
+      reason: 'Level Up!',
+    })
+  }
+
+  // Process new achievements
+  processNewAchievements(gamificationResult.newAchievements)
+}
+
+const showXPNotifications = (xpResult) => {
+  if (!xpResult) return
+
+  xpNotificationRef.value?.addNotification({
+    amount: xpResult.xpGained,
+    reason: formatXPReason(xpResult.reason),
+  })
+}
+
+const processNewAchievements = (newAchievements) => {
+  if (!newAchievements?.length) return
+
+  // Show the first achievement modal, queue the rest
+  showNextAchievement()
+}
+
+const showNextAchievement = () => {
+  if (hasPendingUnlocks.value) {
+    currentAchievement.value = getPendingUnlock()
+    if (currentAchievement.value) {
+      showAchievementModal.value = true
+    }
+  }
+}
+
+const handleAchievementModalClose = () => {
+  showAchievementModal.value = false
+  currentAchievement.value = null
+
+  // Show next achievement if queued
+  setTimeout(() => {
+    showNextAchievement()
+  }, 300)
 }
 
 const handleAnalysisError = (error) => {
