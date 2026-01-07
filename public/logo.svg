@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100">
+  <defs>
+    <!-- Cyan neon glow -->
+    <filter id="cyanGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="blur1"/>
+      <feGaussianBlur stdDeviation="6" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <!-- Pink neon glow -->
+    <filter id="pinkGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <!-- Lime accent glow -->
+    <filter id="limeGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="1.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background (optional, transparent by default) -->
+  <rect width="400" height="100" fill="#0a0a0f" rx="8"/>
+
+  <!-- Icon symbol - Abstract brain/circuit design -->
+  <g transform="translate(15, 15)">
+    <!-- Outer hexagon frame -->
+    <polygon points="35,5 60,20 60,50 35,65 10,50 10,20"
+             fill="none" stroke="#00ffee" stroke-width="2" filter="url(#cyanGlow)"/>
+
+    <!-- Inner circuit paths -->
+    <path d="M35,15 L35,55 M20,25 L50,25 M20,45 L50,45"
+          stroke="#ff00ff" stroke-width="1.5" fill="none" filter="url(#pinkGlow)"/>
+
+    <!-- Center AI eye/node -->
+    <circle cx="35" cy="35" r="8" fill="none" stroke="#00ff41" stroke-width="2" filter="url(#limeGlow)"/>
+    <circle cx="35" cy="35" r="3" fill="#00ff41" filter="url(#limeGlow)"/>
+
+    <!-- Corner nodes -->
+    <circle cx="20" cy="25" r="2" fill="#00ffee"/>
+    <circle cx="50" cy="25" r="2" fill="#00ffee"/>
+    <circle cx="20" cy="45" r="2" fill="#00ffee"/>
+    <circle cx="50" cy="45" r="2" fill="#00ffee"/>
+  </g>
+
+  <!-- Main text "GROK" -->
+  <text x="95" y="48" font-family="Orbitron, sans-serif" font-size="32" font-weight="700"
+        fill="#00ffee" filter="url(#cyanGlow)">GROK</text>
+
+  <!-- "AI" text -->
+  <text x="210" y="48" font-family="Orbitron, sans-serif" font-size="32" font-weight="700"
+        fill="#ff00ff" filter="url(#pinkGlow)">AI</text>
+
+  <!-- Subtitle -->
+  <text x="95" y="72" font-family="Orbitron, sans-serif" font-size="12" font-weight="500"
+        fill="#00ff41" letter-spacing="3" filter="url(#limeGlow)">SELF-ANALYSIS</text>
+
+  <!-- Decorative scan line -->
+  <line x1="95" y1="80" x2="260" y2="80" stroke="#00ffee" stroke-width="1" opacity="0.5"/>
+  <line x1="95" y1="82" x2="200" y2="82" stroke="#ff00ff" stroke-width="1" opacity="0.3"/>
+</svg>

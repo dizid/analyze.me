@@ -216,12 +216,9 @@ const refreshDashboard = async () => {
 
     projects.value = projectsWithSummaries
 
-    // Generate missing summaries
-    for (const project of projectsWithSummaries) {
-      if (!project.summary) {
-        generateSummary(project)
-      }
-    }
+    // Generate missing summaries with rate limiting (sequential, 1.5s delay)
+    const projectsNeedingSummary = projectsWithSummaries.filter(p => !p.summary)
+    generateSummariesSequentially(projectsNeedingSummary)
 
     updateLastRefresh()
     lastRefresh.value = getLastRefreshTime()
@@ -230,6 +227,26 @@ const refreshDashboard = async () => {
     error.value = err.message || 'Failed to refresh dashboard'
   } finally {
     isRefreshing.value = false
+  }
+}
+
+// Helper to delay execution
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+
+// Process summaries one at a time with delay to avoid rate limits
+const generateSummariesSequentially = async (projectsToProcess) => {
+  for (let i = 0; i < projectsToProcess.length; i++) {
+    const project = projectsToProcess[i]
+    try {
+      await generateSummary(project)
+    } catch (err) {
+      // Continue with next project even if one fails
+      console.error(`Summary generation failed for ${project.name}:`, err)
+    }
+    // Wait 1.5 seconds between requests to avoid rate limiting
+    if (i < projectsToProcess.length - 1) {
+      await delay(1500)
+    }
   }
 }
 

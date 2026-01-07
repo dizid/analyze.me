@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <!-- Cyan neon glow -->
+    <filter id="cyanGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur1"/>
+      <feGaussianBlur stdDeviation="16" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <!-- Pink neon glow -->
+    <filter id="pinkGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <!-- Lime accent glow -->
+    <filter id="limeGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <!-- Background gradient -->
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#1a0a2e"/>
+      <stop offset="100%" stop-color="#0a0a0f"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" fill="url(#bgGrad)" rx="64"/>
+
+  <!-- Subtle grid pattern -->
+  <g opacity="0.05">
+    <line x1="0" y1="128" x2="512" y2="128" stroke="#ff00ff" stroke-width="1"/>
+    <line x1="0" y1="256" x2="512" y2="256" stroke="#ff00ff" stroke-width="1"/>
+    <line x1="0" y1="384" x2="512" y2="384" stroke="#ff00ff" stroke-width="1"/>
+    <line x1="128" y1="0" x2="128" y2="512" stroke="#ff00ff" stroke-width="1"/>
+    <line x1="256" y1="0" x2="256" y2="512" stroke="#ff00ff" stroke-width="1"/>
+    <line x1="384" y1="0" x2="384" y2="512" stroke="#ff00ff" stroke-width="1"/>
+  </g>
+
+  <!-- Outer hexagon frame -->
+  <polygon points="256,60 420,155 420,345 256,440 92,345 92,155"
+           fill="none" stroke="#00ffee" stroke-width="6" filter="url(#cyanGlow)"/>
+
+  <!-- Inner hexagon -->
+  <polygon points="256,100 380,175 380,325 256,400 132,325 132,175"
+           fill="none" stroke="#00ffee" stroke-width="2" opacity="0.4"/>
+
+  <!-- Circuit paths - horizontal -->
+  <path d="M140,200 L372,200" stroke="#ff00ff" stroke-width="4" fill="none" filter="url(#pinkGlow)"/>
+  <path d="M140,310 L372,310" stroke="#ff00ff" stroke-width="4" fill="none" filter="url(#pinkGlow)"/>
+
+  <!-- Circuit paths - vertical -->
+  <path d="M256,120 L256,390" stroke="#ff00ff" stroke-width="4" fill="none" filter="url(#pinkGlow)"/>
+
+  <!-- Diagonal connectors -->
+  <path d="M180,160 L256,200 L332,160" stroke="#00ffee" stroke-width="2" fill="none" opacity="0.6"/>
+  <path d="M180,350 L256,310 L332,350" stroke="#00ffee" stroke-width="2" fill="none" opacity="0.6"/>
+
+  <!-- Center AI eye/core -->
+  <circle cx="256" cy="255" r="60" fill="none" stroke="#00ff41" stroke-width="5" filter="url(#limeGlow)"/>
+  <circle cx="256" cy="255" r="40" fill="none" stroke="#00ff41" stroke-width="2" opacity="0.5"/>
+  <circle cx="256" cy="255" r="20" fill="#00ff41" filter="url(#limeGlow)"/>
+
+  <!-- Corner nodes on circuit intersections -->
+  <circle cx="256" cy="200" r="10" fill="#00ffee" filter="url(#cyanGlow)"/>
+  <circle cx="256" cy="310" r="10" fill="#00ffee" filter="url(#cyanGlow)"/>
+  <circle cx="180" cy="200" r="8" fill="#ff00ff" filter="url(#pinkGlow)"/>
+  <circle cx="332" cy="200" r="8" fill="#ff00ff" filter="url(#pinkGlow)"/>
+  <circle cx="180" cy="310" r="8" fill="#ff00ff" filter="url(#pinkGlow)"/>
+  <circle cx="332" cy="310" r="8" fill="#ff00ff" filter="url(#pinkGlow)"/>
+
+  <!-- Small data nodes -->
+  <circle cx="140" cy="255" r="5" fill="#00ffee" opacity="0.8"/>
+  <circle cx="372" cy="255" r="5" fill="#00ffee" opacity="0.8"/>
+
+  <!-- "G" letter hint in center (subtle) -->
+  <text x="256" y="270" font-family="Orbitron, Arial, sans-serif" font-size="50" font-weight="800"
+        fill="#0a0a0f" text-anchor="middle" opacity="0.3">G</text>
+</svg>

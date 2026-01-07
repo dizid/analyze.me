@@ -14,7 +14,6 @@
 
       <!-- Rendered Content -->
       <div
-        ref="resultContentRef"
         class="prose prose-invert max-w-none
                prose-headings:text-cyberpunk-cyan
                prose-p:text-gray-300
@@ -48,20 +47,27 @@
 
         <CyberpunkButton
           variant="pink"
-          icon="📄"
-          @click="exportToPdf"
-          :disabled="isExporting"
+          icon="📝"
+          @click="downloadMarkdown"
           class="flex-1"
         >
-          <span v-if="!isExporting">Export PDF</span>
-          <span v-else>Exporting...</span>
+          Save .md
+        </CyberpunkButton>
+
+        <CyberpunkButton
+          variant="lime"
+          icon="📄"
+          @click="downloadText"
+          class="flex-1"
+        >
+          Save .txt
         </CyberpunkButton>
       </div>
 
-      <!-- Copy Success Message -->
+      <!-- Success Message -->
       <Transition name="fade">
-        <div v-if="showCopySuccess" class="p-2 bg-cyberpunk-cyan/20 border border-cyberpunk-cyan rounded text-center text-sm">
-          ✓ Copied to clipboard!
+        <div v-if="showSuccess" class="p-2 bg-cyberpunk-cyan/20 border border-cyberpunk-cyan rounded text-center text-sm">
+          {{ successMessage }}
         </div>
       </Transition>
     </div>
@@ -75,7 +81,6 @@ import CyberpunkButton from '@/components/ui/CyberpunkButton.vue'
 import ActionItems from '@/components/ActionItems.vue'
 import ProfessionalRecommendations from '@/components/ProfessionalRecommendations.vue'
 import { useMarkdownRenderer } from '@/composables/useMarkdownRenderer'
-import { usePdfExport } from '@/composables/usePdfExport'
 
 const props = defineProps({
   result: {
@@ -85,10 +90,9 @@ const props = defineProps({
 })
 
 const { renderMarkdown } = useMarkdownRenderer()
-const { exportToPdf: exportPdf, isExporting } = usePdfExport()
 
-const resultContentRef = ref(null)
-const showCopySuccess = ref(false)
+const showSuccess = ref(false)
+const successMessage = ref('')
 
 const renderedContent = computed(() => {
   if (!props.result?.content) return ''
@@ -106,25 +110,63 @@ const formatDate = (isoString) => {
   })
 }
 
+const showSuccessMessage = (message) => {
+  successMessage.value = message
+  showSuccess.value = true
+  setTimeout(() => {
+    showSuccess.value = false
+  }, 2000)
+}
+
 const copyToClipboard = async () => {
   if (!props.result?.content) return
 
   try {
     await navigator.clipboard.writeText(props.result.content)
-    showCopySuccess.value = true
-    setTimeout(() => {
-      showCopySuccess.value = false
-    }, 2000)
+    showSuccessMessage('✓ Copied to clipboard!')
   } catch (err) {
     console.error('Failed to copy:', err)
   }
 }
 
-const exportToPdf = async () => {
-  if (!resultContentRef.value) return
+const downloadFile = (content, filename, mimeType) => {
+  const blob = new Blob([content], { type: mimeType })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+}
 
-  const filename = `grok-analysis-${new Date().getTime()}.pdf`
-  await exportPdf(resultContentRef.value, filename)
+const downloadMarkdown = () => {
+  if (!props.result?.content) return
+
+  const timestamp = new Date().toISOString().split('T')[0]
+  const filename = `grok-analysis-${timestamp}.md`
+
+  // Add metadata header to markdown
+  const header = `# Grok AI Analysis\n\n**Date:** ${formatDate(props.result.timestamp)}\n**Model:** ${props.result.model}\n\n---\n\n`
+  const content = header + props.result.content
+
+  downloadFile(content, filename, 'text/markdown')
+  showSuccessMessage('✓ Downloaded as Markdown!')
+}
+
+const downloadText = () => {
+  if (!props.result?.content) return
+
+  const timestamp = new Date().toISOString().split('T')[0]
+  const filename = `grok-analysis-${timestamp}.txt`
+
+  // Add metadata header
+  const header = `GROK AI ANALYSIS\n${'='.repeat(50)}\nDate: ${formatDate(props.result.timestamp)}\nModel: ${props.result.model}\n${'='.repeat(50)}\n\n`
+  const content = header + props.result.content
+
+  downloadFile(content, filename, 'text/plain')
+  showSuccessMessage('✓ Downloaded as Text!')
 }
 </script>
 

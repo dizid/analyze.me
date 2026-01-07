@@ -99,7 +99,7 @@ import { useGmailData } from '@/composables/useGmailData'
 
 const emit = defineEmits(['content-ready', 'content-cleared'])
 
-const { isAuthenticated, getAccessToken, signIn } = useGoogleAuth()
+const { isAuthenticated, accessToken, signIn } = useGoogleAuth()
 const { isLoading, error, emailData, fetchEmails, clearData } = useGmailData()
 
 const isConnecting = ref(false)
@@ -121,8 +121,11 @@ const handleConnect = async () => {
 
 const handleFetch = async () => {
   try {
-    const token = await getAccessToken()
-    await fetchEmails(token, {
+    if (!accessToken.value) {
+      console.error('No access token available')
+      return
+    }
+    await fetchEmails(accessToken.value, {
       daysBack: daysBack.value,
       maxResults: maxEmails.value,
     })

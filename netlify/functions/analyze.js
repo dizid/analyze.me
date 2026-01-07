@@ -65,7 +65,14 @@ export const handler = async (event, context) => {
     }
 
     // Parse and validate request
-    const { content, prompt, model = 'grok-4-fast-reasoning', temperature = 0.7, max_tokens = 1000 } = JSON.parse(event.body)
+    const { content, prompt, model = 'grok-4-fast-reasoning', temperature = 0.7, max_tokens = 400, output_length = 'middle' } = JSON.parse(event.body)
+
+    // Length-specific instructions
+    const lengthInstructions = {
+      summary: 'Be extremely brief. Maximum 3-5 bullet points. No lengthy explanations.',
+      middle: 'Be concise. Focus on key insights with brief context. Use bullet points.',
+      long: 'Provide thorough analysis but stay focused. Avoid unnecessary verbosity.'
+    }
 
     if (!content || !prompt) {
       return {
@@ -102,7 +109,7 @@ export const handler = async (event, context) => {
         messages: [
           {
             role: 'system',
-            content: 'You are a personal document analyst. Provide insightful analysis based on the document and prompt. Use clear markdown formatting.',
+            content: `You are a personal document analyst. ${lengthInstructions[output_length] || lengthInstructions.middle} Use markdown formatting.`,
           },
           {
             role: 'user',

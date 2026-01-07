@@ -102,21 +102,21 @@ const OUTPUT_LENGTH_OPTIONS = [
     id: 'summary',
     label: 'Summary',
     icon: '📝',
-    tokens: 300,
+    tokens: 150,
     description: 'Brief and concise'
   },
   {
     id: 'middle',
     label: 'Middle',
     icon: '📄',
-    tokens: 1300,
+    tokens: 400,
     description: 'Balanced detail'
   },
   {
     id: 'long',
     label: 'Long',
     icon: '📚',
-    tokens: 3000,
+    tokens: 800,
     description: 'Comprehensive'
   }
 ]
@@ -155,7 +155,8 @@ const handleAnalyze = async () => {
   try {
     const selectedLengthOption = OUTPUT_LENGTH_OPTIONS.find(opt => opt.id === outputLength.value)
     const result = await analyze(props.document.content, customPrompt.value, {
-      max_tokens: selectedLengthOption?.tokens || 2000
+      max_tokens: selectedLengthOption?.tokens || 400,
+      output_length: outputLength.value
     })
     emit('analysis-complete', result)
   } catch (error) {

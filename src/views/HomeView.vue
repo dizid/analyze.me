@@ -2,7 +2,7 @@
   <div class="min-h-screen p-4 md:p-8">
     <!-- Header -->
     <header class="mb-8 text-center relative">
-      <!-- Top Bar: Profile & CEO Dashboard -->
+      <!-- Top Bar: Profile & Navigation -->
       <div class="flex justify-between items-start mb-4">
         <!-- Profile Button -->
         <button
@@ -12,13 +12,24 @@
           Profile
         </button>
 
-        <!-- CEO Dashboard Button -->
-        <button
-          class="neon-button px-4 py-2 text-sm border-cyberpunk-lime text-cyberpunk-lime hover:shadow-[var(--shadow-neon-lime)]"
-          @click="$emit('navigate', 'ceo-dashboard')"
-        >
-          CEO Dashboard
-        </button>
+        <!-- Right Side Navigation -->
+        <div class="flex gap-2">
+          <!-- Digest Button -->
+          <button
+            class="neon-button px-4 py-2 text-sm border-cyberpunk-pink text-cyberpunk-pink hover:shadow-[var(--shadow-neon-pink)]"
+            @click="$emit('navigate', 'digest')"
+          >
+            Digest
+          </button>
+
+          <!-- CEO Dashboard Button -->
+          <button
+            class="neon-button px-4 py-2 text-sm border-cyberpunk-lime text-cyberpunk-lime hover:shadow-[var(--shadow-neon-lime)]"
+            @click="$emit('navigate', 'ceo-dashboard')"
+          >
+            CEO Dashboard
+          </button>
+        </div>
       </div>
 
       <!-- Gamification Bar -->
