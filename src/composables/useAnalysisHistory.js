@@ -1,14 +1,24 @@
 import { ref, computed } from 'vue'
 
-const STORAGE_KEY = 'grok-analysis-history'
+const STORAGE_KEY = 'analyze-me-history'
+const LEGACY_KEY = 'grok-analysis-history'
 const MAX_HISTORY_ITEMS = 50
 
 const historyItems = ref([])
 
-// Load from localStorage on initialization
+// Load from localStorage on initialization (with legacy key migration)
 const loadHistory = () => {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY)
+    let stored = localStorage.getItem(STORAGE_KEY)
+    // Migrate from legacy key if needed
+    if (!stored) {
+      const legacy = localStorage.getItem(LEGACY_KEY)
+      if (legacy) {
+        stored = legacy
+        localStorage.setItem(STORAGE_KEY, legacy)
+        localStorage.removeItem(LEGACY_KEY)
+      }
+    }
     if (stored) {
       historyItems.value = JSON.parse(stored)
     }

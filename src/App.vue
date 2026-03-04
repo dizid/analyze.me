@@ -1,51 +1,34 @@
 <template>
   <div id="app">
-    <HomeView v-if="currentView === 'home'" @navigate="handleNavigate" />
-    <CeoDashboardView
-      v-else-if="currentView === 'ceo-dashboard'"
-      @back="currentView = 'home'"
-    />
-    <ProfileView
-      v-else-if="currentView === 'profile'"
-      @back="currentView = 'home'"
-      @navigate="handleNavigate"
-    />
-    <AchievementsView
-      v-else-if="currentView === 'achievements'"
-      @back="currentView = 'home'"
-    />
-    <DigestView
-      v-else-if="currentView === 'digest'"
-      @back="currentView = 'home'"
-    />
-    <PrivacyPolicyView
-      v-else-if="currentView === 'privacy'"
-      @back="currentView = 'home'"
-    />
-    <TermsOfServiceView
-      v-else-if="currentView === 'terms'"
-      @back="currentView = 'home'"
-    />
-
-    <Footer v-if="!['ceo-dashboard', 'profile', 'achievements', 'digest'].includes(currentView)" @navigate="handleNavigate" />
+    <RouterView />
+    <Footer v-if="showFooter" />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import HomeView from './views/HomeView.vue'
-import CeoDashboardView from './views/CeoDashboardView.vue'
-import ProfileView from './views/ProfileView.vue'
-import AchievementsView from './views/AchievementsView.vue'
-import DigestView from './views/DigestView.vue'
-import PrivacyPolicyView from './views/PrivacyPolicyView.vue'
-import TermsOfServiceView from './views/TermsOfServiceView.vue'
+import { computed, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import Footer from './components/Footer.vue'
 
-const currentView = ref('home')
+const route = useRoute()
+const router = useRouter()
+const showFooter = computed(() => route.meta.showFooter === true)
 
-const handleNavigate = (view) => {
-  currentView.value = view
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+// Auth guard: redirect to sign-in if route requires auth and user isn't authenticated
+// Clerk provides useAuth() but it may not be available if Clerk isn't configured
+// We check for the Clerk instance on window to see if the user is signed in
+const hasClerk = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+
+if (hasClerk) {
+  // Dynamic import to avoid errors when Clerk isn't configured
+  import('@clerk/vue').then(({ useAuth }) => {
+    const { isSignedIn, isLoaded } = useAuth()
+
+    watch([isLoaded, isSignedIn, () => route.fullPath], () => {
+      if (isLoaded.value && !isSignedIn.value && route.meta.requiresAuth) {
+        router.push('/sign-in')
+      }
+    })
+  })
 }
 </script>

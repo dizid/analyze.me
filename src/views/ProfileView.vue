@@ -3,7 +3,7 @@
     <!-- Header -->
     <header class="mb-8">
       <button
-        @click="$emit('back')"
+        @click="router.push('/app')"
         class="neon-button px-4 py-2 text-sm border-cyberpunk-cyan text-cyberpunk-cyan hover:shadow-[var(--shadow-neon-cyan)] mb-4"
       >
         ← Back to Dashboard
@@ -138,7 +138,7 @@
             Next Achievements
           </h3>
           <button
-            @click="$emit('navigate', 'achievements')"
+            @click="router.push('/achievements')"
             class="view-all-button"
           >
             View All →
@@ -209,13 +209,14 @@
 
 <script setup>
 import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useGamification } from '@/composables/useGamification'
 import LevelBadge from '@/components/gamification/LevelBadge.vue'
 import XPBar from '@/components/gamification/XPBar.vue'
 import AchievementCard from '@/components/gamification/AchievementCard.vue'
 import CyberpunkButton from '@/components/ui/CyberpunkButton.vue'
 
-defineEmits(['back', 'navigate'])
+const router = useRouter()
 
 const {
   totalXp,
@@ -283,7 +284,7 @@ const formatTimeAgo = (timestamp) => {
 // Keys to include in the full data export
 const EXPORT_KEYS = [
   'analyze-me-gamification',
-  'grok-analysis-history',
+  'analyze-me-history',
   'spotify-auth',
   'github_auth',
 ]

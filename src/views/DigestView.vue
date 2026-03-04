@@ -4,7 +4,7 @@
     <header class="mb-8">
       <div class="flex justify-between items-start mb-4">
         <button
-          @click="$emit('back')"
+          @click="router.push('/app')"
           class="neon-button px-4 py-2 text-sm border-cyberpunk-cyan text-cyberpunk-cyan hover:shadow-[var(--shadow-neon-cyan)]"
         >
           ← Back to Dashboard
@@ -135,7 +135,8 @@ import { useGamification } from '@/composables/useGamification'
 import { useAnalysis } from '@/composables/useAnalysis'
 import { useMarkdownRenderer } from '@/composables/useMarkdownRenderer'
 
-defineEmits(['back'])
+import { useRouter } from 'vue-router'
+const router = useRouter()
 
 const { history } = useAnalysisHistory()
 const {

@@ -23,7 +23,7 @@
           </button>
           <button
             class="neon-button px-4 py-2 border-cyberpunk-pink text-cyberpunk-pink"
-            @click="$emit('back')"
+            @click="router.push('/app')"
           >
             Back
           </button>
@@ -113,7 +113,8 @@ import ProjectCard from '@/components/dashboard/ProjectCard.vue'
 import ProjectDetailModal from '@/components/dashboard/ProjectDetailModal.vue'
 import DashboardStats from '@/components/dashboard/DashboardStats.vue'
 
-defineEmits(['back'])
+import { useRouter } from 'vue-router'
+const router = useRouter()
 
 // Composables
 const { isAuthenticated, accessToken, signIn, initializeGoogleAuth } = useGoogleAuth()

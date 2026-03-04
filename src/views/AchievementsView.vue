@@ -3,7 +3,7 @@
     <!-- Header -->
     <header class="mb-8">
       <button
-        @click="$emit('back')"
+        @click="router.push('/app')"
         class="neon-button px-4 py-2 text-sm border-cyberpunk-cyan text-cyberpunk-cyan hover:shadow-[var(--shadow-neon-cyan)] mb-4"
       >
         ← Back to Dashboard
@@ -98,7 +98,8 @@ import {
   ACHIEVEMENT_CATEGORIES,
 } from '@/config/gamification'
 
-defineEmits(['back'])
+import { useRouter } from 'vue-router'
+const router = useRouter()
 
 const {
   unlockedCount,

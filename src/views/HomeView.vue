@@ -7,17 +7,25 @@
         <!-- Profile Button -->
         <button
           class="neon-button px-4 py-2 text-sm border-cyberpunk-cyan text-cyberpunk-cyan hover:shadow-[var(--shadow-neon-cyan)]"
-          @click="$emit('navigate', 'profile')"
+          @click="router.push('/profile')"
         >
           Profile
         </button>
 
         <!-- Right Side Navigation -->
         <div class="flex gap-2">
+          <!-- Journal Button -->
+          <button
+            class="neon-button px-4 py-2 text-sm border-cyberpunk-lime text-cyberpunk-lime hover:shadow-[var(--shadow-neon-lime)]"
+            @click="router.push('/journal')"
+          >
+            Journal
+          </button>
+
           <!-- Digest Button -->
           <button
             class="neon-button px-4 py-2 text-sm border-cyberpunk-pink text-cyberpunk-pink hover:shadow-[var(--shadow-neon-pink)]"
-            @click="$emit('navigate', 'digest')"
+            @click="router.push('/digest')"
           >
             Digest
           </button>
@@ -25,7 +33,7 @@
           <!-- Projects Button -->
           <button
             class="neon-button px-3 py-1.5 text-xs border-cyberpunk-lime text-cyberpunk-lime hover:shadow-[var(--shadow-neon-lime)] opacity-60 hover:opacity-100 transition-opacity"
-            @click="$emit('navigate', 'ceo-dashboard')"
+            @click="router.push('/projects')"
           >
             Projects
           </button>
@@ -34,7 +42,7 @@
 
       <!-- Gamification Bar -->
       <div class="flex justify-center mb-6">
-        <GamificationBar @show-achievements="$emit('navigate', 'achievements')" />
+        <GamificationBar @show-achievements="router.push('/achievements')" />
       </div>
 
       <h1 class="text-4xl md:text-6xl font-bold mb-2">
@@ -185,6 +193,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import DataSourceSelector from '@/components/DataSourceSelector.vue'
 import AnalysisPrompt from '@/components/AnalysisPrompt.vue'
 import ResultDisplay from '@/components/ResultDisplay.vue'
@@ -199,7 +208,7 @@ import { useAnalysisHistory } from '@/composables/useAnalysisHistory'
 import { useGamification } from '@/composables/useGamification'
 import { handleError } from '@/utils/errorHandler'
 
-defineEmits(['navigate'])
+const router = useRouter()
 
 // Onboarding overlay — shown only on first visit
 const ONBOARDING_KEY = 'analyze-me-onboarding-complete'

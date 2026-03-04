@@ -69,7 +69,7 @@
 
         <!-- Back Button -->
         <div class="mt-8 text-center">
-          <CyberpunkButton variant="cyan" @click="$emit('back')">
+          <CyberpunkButton variant="cyan" @click="router.push('/app')">
             ← Back to App
           </CyberpunkButton>
         </div>
@@ -79,9 +79,10 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router'
 import CyberpunkPanel from '@/components/ui/CyberpunkPanel.vue'
 import CyberpunkButton from '@/components/ui/CyberpunkButton.vue'
 import GlitchText from '@/components/ui/GlitchText.vue'
 
-defineEmits(['back'])
+const router = useRouter()
 </script>
