@@ -132,7 +132,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAnalysisHistory } from '@/composables/useAnalysisHistory'
 import { useGamification } from '@/composables/useGamification'
-import { useGrokAnalysis } from '@/composables/useGrokAnalysis'
+import { useAnalysis } from '@/composables/useAnalysis'
 import { useMarkdownRenderer } from '@/composables/useMarkdownRenderer'
 
 defineEmits(['back'])
@@ -147,7 +147,7 @@ const {
   getStreakEmoji,
   trackExport,
 } = useGamification()
-const { analyze, isAnalyzing } = useGrokAnalysis()
+const { analyze, isAnalyzing } = useAnalysis()
 const { renderMarkdown } = useMarkdownRenderer()
 
 const aiInsights = ref(null)

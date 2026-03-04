@@ -23,7 +23,7 @@
       ></div>
     </div>
 
-    <p v-if="message" class="ml-4 text-cyberpunk-cyan animate-pulse">{{ message }}</p>
+    <p v-if="message" class="ml-4 text-cyberpunk-cyan">{{ message }}</p>
   </div>
 </template>
 

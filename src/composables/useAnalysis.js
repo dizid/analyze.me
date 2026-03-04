@@ -7,7 +7,7 @@ const FUNCTIONS_URL = import.meta.env.VITE_NETLIFY_FUNCTIONS_URL || '/.netlify/f
 // Helper for delay
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
-export function useGrokAnalysis() {
+export function useAnalysis() {
   const isAnalyzing = ref(false)
   const analysisResult = ref(null)
   const error = ref(null)
@@ -27,7 +27,7 @@ export function useGrokAnalysis() {
         {
           content: documentContent,
           prompt: prompt,
-          model: options.model || 'grok-4-fast-reasoning',
+          model: options.model || 'claude-sonnet-4-20250514',
           temperature: options.temperature || 0.7,
           max_tokens: options.max_tokens || 400,
           output_length: options.output_length || 'middle',
@@ -44,7 +44,7 @@ export function useGrokAnalysis() {
           content: response.data.analysis,
           timestamp: new Date().toISOString(),
           promptUsed: prompt,
-          model: options.model || 'grok-4-fast-reasoning',
+          model: options.model || 'claude-sonnet-4-20250514',
           usage: response.data.usage,
         }
 

@@ -2,6 +2,8 @@
   <button
     :class="[
       'neon-button',
+      'transition-transform',
+      'hover:scale-[1.02]',
       variantClasses,
       sizeClasses,
       { 'opacity-50 cursor-not-allowed': disabled }

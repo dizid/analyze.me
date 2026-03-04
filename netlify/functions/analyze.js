@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-const XAI_API_URL = 'https://api.x.ai/v1/chat/completions'
-const XAI_API_KEY = process.env.XAI_API_KEY
+const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages'
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
 
 // Simple in-memory rate limiting (for production, use Redis or similar)
 const requestCounts = new Map()
@@ -24,10 +24,13 @@ const checkRateLimit = (identifier) => {
   return true
 }
 
+const ALLOWED_MODELS = ['claude-sonnet-4-20250514', 'claude-haiku-4-5-20251001']
+const ALLOWED_OUTPUT_LENGTHS = ['summary', 'middle', 'long']
+
 export const handler = async (event, context) => {
   // CORS headers
   const headers = {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGIN || 'http://localhost:3000',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
   }
@@ -64,15 +67,38 @@ export const handler = async (event, context) => {
       }
     }
 
-    // Parse and validate request
-    const { content, prompt, model = 'grok-4-fast-reasoning', temperature = 0.7, max_tokens = 400, output_length = 'middle' } = JSON.parse(event.body)
+    // Parse request
+    const { content, prompt, model = 'claude-sonnet-4-20250514', temperature = 0.7, max_tokens = 400, output_length = 'middle' } = JSON.parse(event.body)
+
+    // Input validation
+    if (!ALLOWED_MODELS.includes(model)) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: `Invalid model. Allowed: ${ALLOWED_MODELS.join(', ')}` }),
+      }
+    }
+
+    if (!ALLOWED_OUTPUT_LENGTHS.includes(output_length)) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: `Invalid output_length. Allowed: ${ALLOWED_OUTPUT_LENGTHS.join(', ')}` }),
+      }
+    }
+
+    const safeTemperature = Math.max(0, Math.min(1, temperature))
+    const safeMaxTokens = Math.min(max_tokens, 4096)
 
     // Length-specific instructions
     const lengthInstructions = {
-      summary: 'Be extremely brief. Maximum 3-5 bullet points. No lengthy explanations.',
-      middle: 'Be concise. Focus on key insights with brief context. Use bullet points.',
-      long: 'Provide thorough analysis but stay focused. Avoid unnecessary verbosity.'
+      summary: 'Be extremely brief. Maximum 3-5 bullet points. No section headers needed.',
+      middle: 'Be concise. Focus on key insights with brief context.',
+      long: 'Provide thorough analysis with detailed context and examples.'
     }
+
+    // Structured format for middle and long outputs only
+    const structuredFormat = output_length !== 'summary' ? `\n\nStructure your response with these markdown sections:\n## Key Takeaways\nList the 3 most important insights as bullet points.\n\n## Analysis\nYour detailed analysis.\n\n## Action Steps\nList 2-4 specific, actionable recommendations.` : ''
 
     if (!content || !prompt) {
       return {
@@ -92,8 +118,8 @@ export const handler = async (event, context) => {
     }
 
     // Check API key
-    if (!XAI_API_KEY) {
-      console.error('XAI_API_KEY not configured')
+    if (!ANTHROPIC_API_KEY) {
+      console.error('ANTHROPIC_API_KEY not configured')
       return {
         statusCode: 500,
         headers,
@@ -101,35 +127,33 @@ export const handler = async (event, context) => {
       }
     }
 
-    // Call Grok API
+    // Call Claude API
     const response = await axios.post(
-      XAI_API_URL,
+      CLAUDE_API_URL,
       {
         model: model,
+        max_tokens: safeMaxTokens,
+        temperature: safeTemperature,
+        system: `You are a personal document analyst. ${lengthInstructions[output_length] || lengthInstructions.middle}${structuredFormat}\n\nUse markdown formatting.`,
         messages: [
-          {
-            role: 'system',
-            content: `You are a personal document analyst. ${lengthInstructions[output_length] || lengthInstructions.middle} Use markdown formatting.`,
-          },
           {
             role: 'user',
             content: `${prompt}\n\n---\n\nDocument Content:\n${content}`,
           },
         ],
-        temperature: temperature,
-        max_tokens: max_tokens,
       },
       {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${XAI_API_KEY}`,
+          'x-api-key': ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01',
         },
-        timeout: 25000, // 25 second timeout (before Netlify's 30s limit)
+        timeout: 25000,
       }
     )
 
     // Extract and return analysis
-    const analysis = response.data.choices[0]?.message?.content
+    const analysis = response.data.content[0]?.text
 
     if (!analysis) {
       throw new Error('No analysis generated')
@@ -150,9 +174,8 @@ export const handler = async (event, context) => {
     let errorMessage = 'Internal server error'
 
     if (error.response) {
-      // xAI API error
       statusCode = error.response.status
-      errorMessage = error.response.data?.error?.message || 'xAI API error'
+      errorMessage = error.response.data?.error?.message || 'API error'
     } else if (error.code === 'ECONNABORTED') {
       statusCode = 504
       errorMessage = 'Request timeout'

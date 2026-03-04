@@ -2,6 +2,7 @@ import { ref, computed } from 'vue'
 import { SPOTIFY_CONFIG } from '@/config/spotify'
 
 const STORAGE_KEY = 'spotify-auth'
+const FUNCTIONS_URL = import.meta.env.VITE_NETLIFY_FUNCTIONS_URL || '/.netlify/functions'
 
 const authState = ref({
   accessToken: null,
@@ -115,7 +116,7 @@ export function useSpotifyAuth() {
     const codeVerifier = localStorage.getItem('spotify-code-verifier')
 
     // Use Netlify function to exchange code (keeps client secret secure)
-    const response = await fetch('/.netlify/functions/spotify-token', {
+    const response = await fetch(`${FUNCTIONS_URL}/spotify-token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -150,7 +151,7 @@ export function useSpotifyAuth() {
       throw new Error('No refresh token available')
     }
 
-    const response = await fetch('/.netlify/functions/spotify-token', {
+    const response = await fetch(`${FUNCTIONS_URL}/spotify-token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

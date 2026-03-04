@@ -177,25 +177,43 @@
           </div>
         </div>
 
+        <!-- Data export/import feedback -->
+        <div v-if="dataFeedback.message" :class="['feedback-banner', dataFeedback.type]">
+          {{ dataFeedback.message }}
+        </div>
+
         <div class="account-actions">
-          <button @click="handleExportData" class="action-button">
+          <CyberpunkButton variant="cyan" size="sm" icon="⬇" @click="handleExportData">
             Export Data
-          </button>
+          </CyberpunkButton>
+          <CyberpunkButton variant="pink" size="sm" icon="⬆" @click="triggerImport">
+            Import Data
+          </CyberpunkButton>
           <button @click="handleResetProgress" class="action-button danger">
             Reset Progress
           </button>
         </div>
+
+        <!-- Hidden file input for import -->
+        <input
+          ref="importFileInput"
+          type="file"
+          accept=".json"
+          style="display: none"
+          @change="handleImportFile"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useGamification } from '@/composables/useGamification'
 import LevelBadge from '@/components/gamification/LevelBadge.vue'
 import XPBar from '@/components/gamification/XPBar.vue'
 import AchievementCard from '@/components/gamification/AchievementCard.vue'
+import CyberpunkButton from '@/components/ui/CyberpunkButton.vue'
 
 defineEmits(['back', 'navigate'])
 
@@ -262,15 +280,117 @@ const formatTimeAgo = (timestamp) => {
   return `${Math.floor(seconds / 86400)}d ago`
 }
 
+// Keys to include in the full data export
+const EXPORT_KEYS = [
+  'analyze-me-gamification',
+  'grok-analysis-history',
+  'spotify-auth',
+  'github_auth',
+]
+
+const importFileInput = ref(null)
+const dataFeedback = ref({ message: '', type: '' })
+
+const showFeedback = (message, type = 'success') => {
+  dataFeedback.value = { message, type }
+  setTimeout(() => {
+    dataFeedback.value = { message: '', type: '' }
+  }, 4000)
+}
+
 const handleExportData = () => {
-  const data = exportState()
-  const blob = new Blob([data], { type: 'application/json' })
+  // Collect all relevant localStorage data
+  const exportData = {
+    exportedAt: new Date().toISOString(),
+    version: 1,
+    data: {},
+  }
+
+  EXPORT_KEYS.forEach((key) => {
+    const value = localStorage.getItem(key)
+    if (value !== null) {
+      try {
+        exportData.data[key] = JSON.parse(value)
+      } catch {
+        exportData.data[key] = value
+      }
+    }
+  })
+
+  // Also grab any other analyze-me or grok-analysis prefixed keys
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i)
+    if (
+      key &&
+      !EXPORT_KEYS.includes(key) &&
+      (key.startsWith('analyze-me') || key.startsWith('grok-analysis'))
+    ) {
+      const value = localStorage.getItem(key)
+      if (value !== null) {
+        try {
+          exportData.data[key] = JSON.parse(value)
+        } catch {
+          exportData.data[key] = value
+        }
+      }
+    }
+  }
+
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `analyze-me-profile-${new Date().toISOString().split('T')[0]}.json`
+  a.download = `analyze-me-backup-${new Date().toISOString().split('T')[0]}.json`
   a.click()
   URL.revokeObjectURL(url)
+  showFeedback('Data exported successfully!', 'success')
+}
+
+const triggerImport = () => {
+  importFileInput.value?.click()
+}
+
+const handleImportFile = (event) => {
+  const file = event.target.files?.[0]
+  if (!file) return
+
+  // Reset file input so the same file can be re-selected after an error
+  event.target.value = ''
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    try {
+      const parsed = JSON.parse(e.target.result)
+
+      // Validate structure
+      if (!parsed || typeof parsed !== 'object' || !parsed.data || typeof parsed.data !== 'object') {
+        showFeedback('Invalid backup file: missing data structure.', 'error')
+        return
+      }
+
+      if (!parsed.version || !parsed.exportedAt) {
+        showFeedback('Invalid backup file: missing version or export date.', 'error')
+        return
+      }
+
+      // Import all keys from the backup
+      const importedKeys = Object.keys(parsed.data)
+      if (importedKeys.length === 0) {
+        showFeedback('Backup file contains no data to import.', 'error')
+        return
+      }
+
+      importedKeys.forEach((key) => {
+        const value = parsed.data[key]
+        localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value))
+      })
+
+      showFeedback(`Imported ${importedKeys.length} data entries. Refresh to see changes.`, 'success')
+    } catch {
+      showFeedback('Failed to parse backup file. Make sure it is a valid JSON file.', 'error')
+    }
+  }
+  reader.readAsText(file)
 }
 
 const handleResetProgress = () => {
@@ -577,6 +697,28 @@ const handleResetProgress = () => {
 .account-actions {
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.feedback-banner {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 16px;
+  font-family: monospace;
+}
+
+.feedback-banner.success {
+  background: rgba(0, 255, 65, 0.1);
+  border: 1px solid rgba(0, 255, 65, 0.4);
+  color: #00ff41;
+}
+
+.feedback-banner.error {
+  background: rgba(255, 0, 100, 0.1);
+  border: 1px solid rgba(255, 0, 100, 0.4);
+  color: #ff0064;
 }
 
 .action-button {

@@ -5,6 +5,8 @@
         v-if="visible"
         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
         @click.self="close"
+        @keydown.esc="close"
+        tabindex="-1"
       >
         <div class="relative max-w-md w-full">
           <!-- Glitch effect border -->

@@ -2,7 +2,8 @@
   <div :class="['cyberpunk-panel', { 'holographic-overlay': holographic }]">
     <div v-if="title" class="mb-4">
       <h3 class="text-xl font-bold" :class="titleColorClass">
-        <span class="glitch-text" :data-text="title">{{ title }}</span>
+        <span v-if="glitch" class="glitch-text" :data-text="title">{{ title }}</span>
+        <span v-else>{{ title }}</span>
       </h3>
     </div>
     <slot></slot>
@@ -20,6 +21,10 @@ const props = defineProps({
     validator: (value) => ['cyan', 'pink', 'lime'].includes(value),
   },
   holographic: {
+    type: Boolean,
+    default: false,
+  },
+  glitch: {
     type: Boolean,
     default: false,
   },

@@ -1,7 +1,7 @@
 <template>
-  <footer class="mt-12 py-6 border-t border-cyberpunk-cyan/30">
+  <footer class="mt-12 py-6 border-t border-cyberpunk-cyan/50">
     <div class="max-w-7xl mx-auto px-4 text-center">
-      <p class="text-sm text-gray-400 font-mono">
+      <p class="text-base text-gray-400 font-mono">
         <button
           @click="$emit('navigate', 'privacy')"
           class="hover:text-cyberpunk-cyan transition-colors duration-300 cursor-pointer"
@@ -17,7 +17,7 @@
         </button>
       </p>
       <p class="text-xs text-gray-500 mt-2 font-mono">
-        © 2025 Grok AI Self-Analysis. All rights reserved.
+        © {{ currentYear }} Claude AI Self-Analysis. All rights reserved.
       </p>
     </div>
   </footer>
@@ -25,4 +25,6 @@
 
 <script setup>
 defineEmits(['navigate'])
+
+const currentYear = new Date().getFullYear()
 </script>

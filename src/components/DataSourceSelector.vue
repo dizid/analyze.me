@@ -13,7 +13,6 @@
       >
         <span class="tab-icon">{{ tab.icon }}</span>
         <span class="tab-label">{{ tab.label }}</span>
-        <span v-if="tab.isNew" class="new-badge">NEW</span>
       </button>
     </div>
 
@@ -76,7 +75,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import CyberpunkPanel from '@/components/ui/CyberpunkPanel.vue'
 import GoogleAuthContent from '@/components/GoogleAuthContent.vue'
 import ManualImport from '@/components/ManualImport.vue'
@@ -86,19 +85,24 @@ import CalendarImport from '@/components/data-sources/CalendarImport.vue'
 import SpotifyImport from '@/components/data-sources/SpotifyImport.vue'
 import GitHubImport from '@/components/data-sources/GitHubImport.vue'
 
-const emit = defineEmits(['document-selected', 'document-cleared'])
+const emit = defineEmits(['document-selected', 'document-cleared', 'tab-changed'])
 
 const tabs = [
   { id: 'google', label: 'Docs', icon: '📄' },
   { id: 'manual', label: 'Text', icon: '✍️' },
   { id: 'twitter', label: 'Twitter', icon: '🐦' },
-  { id: 'gmail', label: 'Gmail', icon: '📧', isNew: true },
-  { id: 'calendar', label: 'Calendar', icon: '📅', isNew: true },
-  { id: 'spotify', label: 'Spotify', icon: '🎵', isNew: true },
-  { id: 'github', label: 'GitHub', icon: '🐙', isNew: true },
+  { id: 'gmail', label: 'Gmail', icon: '📧' },
+  { id: 'calendar', label: 'Calendar', icon: '📅' },
+  { id: 'spotify', label: 'Spotify', icon: '🎵' },
+  { id: 'github', label: 'GitHub', icon: '🐙' },
 ]
 
 const activeTab = ref('google')
+
+// Emit the active tab's source type whenever it changes
+watch(activeTab, (newTab) => {
+  emit('tab-changed', newTab)
+})
 
 const handleDocumentSelected = (document) => {
   emit('document-selected', document)
@@ -235,16 +239,5 @@ const handleContentCleared = () => {
   .tab-label {
     display: inline;
   }
-}
-
-.new-badge {
-  font-size: 9px;
-  padding: 2px 4px;
-  background: rgba(255, 0, 255, 0.2);
-  border: 1px solid rgba(255, 0, 255, 0.4);
-  border-radius: 4px;
-  color: #ff00ff;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 </style>

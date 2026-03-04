@@ -145,10 +145,10 @@ const downloadMarkdown = () => {
   if (!props.result?.content) return
 
   const timestamp = new Date().toISOString().split('T')[0]
-  const filename = `grok-analysis-${timestamp}.md`
+  const filename = `claude-analysis-${timestamp}.md`
 
   // Add metadata header to markdown
-  const header = `# Grok AI Analysis\n\n**Date:** ${formatDate(props.result.timestamp)}\n**Model:** ${props.result.model}\n\n---\n\n`
+  const header = `# Claude AI Analysis\n\n**Date:** ${formatDate(props.result.timestamp)}\n**Model:** ${props.result.model}\n\n---\n\n`
   const content = header + props.result.content
 
   downloadFile(content, filename, 'text/markdown')
@@ -159,10 +159,10 @@ const downloadText = () => {
   if (!props.result?.content) return
 
   const timestamp = new Date().toISOString().split('T')[0]
-  const filename = `grok-analysis-${timestamp}.txt`
+  const filename = `claude-analysis-${timestamp}.txt`
 
   // Add metadata header
-  const header = `GROK AI ANALYSIS\n${'='.repeat(50)}\nDate: ${formatDate(props.result.timestamp)}\nModel: ${props.result.model}\n${'='.repeat(50)}\n\n`
+  const header = `CLAUDE AI ANALYSIS\n${'='.repeat(50)}\nDate: ${formatDate(props.result.timestamp)}\nModel: ${props.result.model}\n${'='.repeat(50)}\n\n`
   const content = header + props.result.content
 
   downloadFile(content, filename, 'text/plain')

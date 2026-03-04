@@ -24,7 +24,7 @@
             <h2 class="text-2xl font-bold text-cyberpunk-lime mb-3">2. Data Usage</h2>
             <ul class="text-gray-300 list-disc list-inside space-y-1 ml-4">
               <li><strong class="text-cyberpunk-cyan">Google authentication:</strong> To access your Google Docs</li>
-              <li><strong class="text-cyberpunk-cyan">Document content:</strong> Sent to xAI Grok API for analysis</li>
+              <li><strong class="text-cyberpunk-cyan">Document content:</strong> Sent to Anthropic Claude API for analysis</li>
               <li><strong class="text-cyberpunk-cyan">Analysis results:</strong> Stored locally in your browser's localStorage</li>
             </ul>
           </section>
@@ -42,7 +42,7 @@
             <h2 class="text-2xl font-bold text-cyberpunk-lime mb-3">4. Third-Party Services</h2>
             <ul class="text-gray-300 list-disc list-inside space-y-1 ml-4">
               <li><strong class="text-cyberpunk-cyan">Google APIs:</strong> For authentication and document access</li>
-              <li><strong class="text-cyberpunk-cyan">xAI Grok API:</strong> For AI analysis (see xAI's privacy policy)</li>
+              <li><strong class="text-cyberpunk-cyan">Anthropic Claude API:</strong> For AI analysis (see Anthropic's privacy policy)</li>
               <li><strong class="text-cyberpunk-cyan">Netlify:</strong> For hosting (see Netlify's privacy policy)</li>
             </ul>
           </section>

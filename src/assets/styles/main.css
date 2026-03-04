@@ -100,7 +100,7 @@ body {
   border-radius: 0.25rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  transition: all 0.3s;
+  transition: all 0.2s;
   position: relative;
   overflow: hidden;
 }
@@ -280,4 +280,19 @@ body {
 .slide-leave-to {
   transform: translateY(20px);
   opacity: 0;
+}
+
+/* Accessibility: respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .glitch-text::before,
+  .glitch-text::after {
+    animation: none !important;
+  }
+  .animate-neon-pulse {
+    animation: none !important;
+  }
+  * {
+    animation-duration: 0.001s !important;
+    transition-duration: 0.001s !important;
+  }
 }

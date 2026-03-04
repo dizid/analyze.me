@@ -5,8 +5,7 @@
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 class="text-3xl md:text-4xl font-bold">
-            <span class="text-cyberpunk-cyan glitch-text" data-text="CEO">CEO</span>
-            <span class="text-cyberpunk-pink"> DASHBOARD</span>
+            <span class="text-cyberpunk-cyan glitch-text" data-text="PROJECTS">PROJECTS</span>
           </h1>
           <p class="text-gray-400 text-sm mt-1">
             <span v-if="lastRefresh">Last updated: {{ formatDateTime(lastRefresh) }}</span>
@@ -108,7 +107,7 @@ import { useGoogleAuth } from '@/composables/useGoogleAuth'
 import { useDriveDocuments } from '@/composables/useDriveDocuments'
 import { useDocumentClassifier } from '@/composables/useDocumentClassifier'
 import { useCeoDashboardCache } from '@/composables/useCeoDashboardCache'
-import { useGrokAnalysis } from '@/composables/useGrokAnalysis'
+import { useAnalysis } from '@/composables/useAnalysis'
 import { CEO_PROMPTS } from '@/config/ceoPrompts'
 import ProjectCard from '@/components/dashboard/ProjectCard.vue'
 import ProjectDetailModal from '@/components/dashboard/ProjectDetailModal.vue'
@@ -130,7 +129,7 @@ const {
   shouldAutoRefresh,
   getStatusCounts,
 } = useCeoDashboardCache()
-const { analyze } = useGrokAnalysis()
+const { analyze } = useAnalysis()
 
 // State
 const projects = ref([])

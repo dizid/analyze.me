@@ -21,7 +21,7 @@
             <h2 class="text-2xl font-bold text-cyberpunk-lime mb-3">2. Description of Service</h2>
             <ul class="text-gray-300 list-disc list-inside space-y-1 ml-4">
               <li>AI-powered analysis of your Google Docs</li>
-              <li>Uses xAI's Grok API for analysis</li>
+              <li>Uses Anthropic's Claude API for analysis</li>
               <li>Free to use (subject to rate limits)</li>
             </ul>
           </section>
@@ -54,10 +54,10 @@
           </section>
 
           <section class="mb-6">
-            <h2 class="text-2xl font-bold text-cyberpunk-lime mb-3">6. xAI API Usage</h2>
+            <h2 class="text-2xl font-bold text-cyberpunk-lime mb-3">6. Anthropic API Usage</h2>
             <ul class="text-gray-300 list-disc list-inside space-y-1 ml-4">
-              <li>Analysis powered by xAI Grok</li>
-              <li>Subject to xAI's terms and policies</li>
+              <li>Analysis powered by Anthropic Claude</li>
+              <li>Subject to Anthropic's terms and policies</li>
               <li>No guarantee of analysis quality</li>
             </ul>
           </section>

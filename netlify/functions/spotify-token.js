@@ -8,7 +8,7 @@ export const handler = async (event) => {
   }
 
   const headers = {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGIN || 'http://localhost:3000',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Content-Type': 'application/json',
   }

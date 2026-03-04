@@ -12,40 +12,32 @@
           Choose Analysis Type
         </label>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <!-- Recommended prompts first, then generic -->
           <button
-            v-for="promptConfig in ANALYSIS_PROMPTS"
+            v-for="promptConfig in suggestedPrompts"
             :key="promptConfig.id"
             @click="selectPrompt(promptConfig)"
             :class="[
-              'p-4 border-2 rounded-lg transition-all text-left',
+              'p-4 border-2 rounded-lg transition-all text-left relative',
               selectedPromptId === promptConfig.id
                 ? 'border-cyberpunk-pink bg-cyberpunk-pink/10 shadow-[var(--shadow-neon-pink)]'
                 : 'border-gray-600 hover:border-cyberpunk-cyan hover:bg-cyberpunk-cyan/5'
             ]"
           >
+            <!-- Recommended badge -->
+            <span
+              v-if="isRecommended(promptConfig)"
+              class="absolute top-2 right-2 text-[9px] px-1.5 py-0.5 rounded
+                     bg-cyberpunk-cyan/20 border border-cyberpunk-cyan/40
+                     text-cyberpunk-cyan font-bold uppercase tracking-wide"
+            >
+              Recommended
+            </span>
             <div class="text-2xl mb-2">{{ promptConfig.icon }}</div>
             <div class="text-sm font-semibold">{{ promptConfig.label }}</div>
           </button>
         </div>
       </div>
-
-      <!-- Custom/Editable Prompt -->
-      <!-- Commented out - can be restored later if needed
-      <div>
-        <label class="block text-sm font-semibold text-cyberpunk-lime mb-2">
-          Custom Prompt
-          <span class="text-xs text-gray-400 ml-2">(Edit the selected prompt or write your own)</span>
-        </label>
-        <textarea
-          v-model="customPrompt"
-          rows="6"
-          class="w-full px-4 py-3 bg-cyberpunk-purple-900/50 border-2 border-gray-600
-                 focus:border-cyberpunk-lime focus:outline-none rounded-lg
-                 text-white placeholder-gray-500 font-mono text-sm"
-          placeholder="Enter your custom analysis prompt here..."
-        ></textarea>
-      </div>
-      -->
 
       <!-- Output Length Selection -->
       <div>
@@ -90,12 +82,12 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { ANALYSIS_PROMPTS } from '@/config/prompts'
 import CyberpunkPanel from '@/components/ui/CyberpunkPanel.vue'
 import CyberpunkButton from '@/components/ui/CyberpunkButton.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
-import { useGrokAnalysis } from '@/composables/useGrokAnalysis'
+import { useAnalysis } from '@/composables/useAnalysis'
 
 const OUTPUT_LENGTH_OPTIONS = [
   {
@@ -126,17 +118,62 @@ const props = defineProps({
     type: Object,
     default: null,
   },
+  dataSource: {
+    type: String,
+    default: null,
+  },
 })
 
 const emit = defineEmits(['analysis-complete', 'analysis-error'])
 
-const { isAnalyzing, analyze } = useGrokAnalysis()
+const { isAnalyzing, analyze } = useAnalysis()
 
 const selectedPromptId = ref(null)
 const customPrompt = ref('')
 const outputLength = ref('middle')
 
 const hasDocument = computed(() => props.document !== null)
+
+/**
+ * Returns prompts sorted so source-specific matches come first,
+ * followed by generic prompts (no sources field).
+ */
+const suggestedPrompts = computed(() => {
+  if (!props.dataSource) return ANALYSIS_PROMPTS
+
+  const recommended = ANALYSIS_PROMPTS.filter(
+    p => p.sources && p.sources.includes(props.dataSource)
+  )
+  const generic = ANALYSIS_PROMPTS.filter(
+    p => !p.sources || !p.sources.includes(props.dataSource)
+  )
+  return [...recommended, ...generic]
+})
+
+/**
+ * Returns true if the prompt matches the current data source.
+ */
+const isRecommended = (promptConfig) => {
+  return (
+    props.dataSource &&
+    promptConfig.sources &&
+    promptConfig.sources.includes(props.dataSource)
+  )
+}
+
+// When the data source changes, auto-select the first matching source-specific prompt.
+watch(
+  () => props.dataSource,
+  (newSource) => {
+    if (!newSource) return
+    const match = ANALYSIS_PROMPTS.find(
+      p => p.sources && p.sources.includes(newSource)
+    )
+    if (match) {
+      selectPrompt(match)
+    }
+  }
+)
 
 const selectPrompt = (promptConfig) => {
   selectedPromptId.value = promptConfig.id

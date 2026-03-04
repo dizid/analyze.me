@@ -3,11 +3,16 @@
     <!-- Level Badge -->
     <LevelBadge :level="currentLevel" size="md" />
 
-    <!-- XP Progress -->
-    <div class="xp-section">
+    <!-- XP Progress: hidden on mobile, shown on sm+ -->
+    <div class="xp-section hidden sm:block">
       <div class="level-info">
         <span class="level-title">{{ levelTitle }}</span>
       </div>
+      <XPBar :xp-progress="xpProgress" />
+    </div>
+
+    <!-- Mobile XP bar: compact, shown only on mobile -->
+    <div class="xp-section-mobile sm:hidden">
       <XPBar :xp-progress="xpProgress" />
     </div>
 
@@ -110,17 +115,16 @@ const {
   color: #ffc800;
 }
 
-@media (max-width: 768px) {
-  .gamification-bar {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
+.xp-section-mobile {
+  flex: 1;
+  min-width: 60px;
+  max-width: 100px;
+}
 
-  .xp-section {
-    order: 3;
-    width: 100%;
-    max-width: none;
-    margin-top: 8px;
+@media (max-width: 640px) {
+  .gamification-bar {
+    gap: 8px;
+    padding: 8px 12px;
   }
 }
 </style>
