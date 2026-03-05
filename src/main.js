@@ -8,8 +8,6 @@ const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 
 const app = createApp(App)
 
-app.use(router)
-
 if (CLERK_PUBLISHABLE_KEY) {
   app.use(clerkPlugin, {
     publishableKey: CLERK_PUBLISHABLE_KEY,
@@ -17,6 +15,8 @@ if (CLERK_PUBLISHABLE_KEY) {
     afterSignUpUrl: '/app',
   })
 }
+
+app.use(router)
 
 // Global error handler
 app.config.errorHandler = (err, instance, info) => {
