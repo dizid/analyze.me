@@ -31,3 +31,9 @@ dist-ssr
 .netlify
 claude.md
 .env
+
+# Claude Code
+.claude/
+
+# Test results
+test-results/

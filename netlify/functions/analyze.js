@@ -155,27 +155,33 @@ export const handler = async (event, context) => {
 
     return {
       statusCode: 200,
-      headers,
+      headers: { 'Content-Type': 'application/json', ...headers },
       body: JSON.stringify({
         analysis,
         usage: response.data.usage,
       }),
     }
   } catch (error) {
+    console.error('Analyze function error:', error.message, error.stack)
     let statusCode = 500
     let errorMessage = 'Internal server error'
 
     if (error.response) {
       statusCode = error.response.status
       errorMessage = error.response.data?.error?.message || 'API error'
+      console.error('API response error:', statusCode, errorMessage)
     } else if (error.code === 'ECONNABORTED') {
       statusCode = 504
       errorMessage = 'Request timeout'
+    } else {
+      // Catch-all for unexpected errors (import failures, JSON parse, etc.)
+      errorMessage = error.message || 'Unknown error'
+      console.error('Unexpected error:', error)
     }
 
     return {
       statusCode,
-      headers,
+      headers: { 'Content-Type': 'application/json', ...headers },
       body: JSON.stringify({ error: errorMessage }),
     }
   }
