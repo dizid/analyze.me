@@ -30,18 +30,15 @@ function isTokenExpired(token) {
 // Load Google Identity Services script
 function loadGisScript() {
   return new Promise((resolve, reject) => {
-    // Already loaded by useGoogleAuth or a previous call
     if (window.google?.accounts?.id) {
       resolve()
       return
     }
 
-    // Script tag may exist but not yet loaded
     const existing = document.querySelector('script[src="https://accounts.google.com/gsi/client"]')
     if (existing) {
       existing.addEventListener('load', () => resolve())
       existing.addEventListener('error', reject)
-      // If it already loaded between our check and listener
       if (window.google?.accounts?.id) resolve()
       return
     }
@@ -77,7 +74,7 @@ async function syncUser(userData, token) {
   }
 }
 
-// Handle credential response from Google
+// Callback invoked when user selects a Google account
 function handleCredentialResponse(response) {
   const token = response.credential
   const payload = decodeJwtPayload(token)
@@ -94,16 +91,13 @@ function handleCredentialResponse(response) {
     picture: payload.picture,
   }
 
-  // Update reactive state
   idToken.value = token
   user.value = userData
   isSignedIn.value = true
 
-  // Persist to localStorage
   localStorage.setItem(STORAGE_TOKEN_KEY, token)
   localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(userData))
 
-  // Sync to backend
   syncUser(userData, token)
 }
 
@@ -115,7 +109,7 @@ export function useAuth() {
     if (initialized) return
     initialized = true
 
-    // Try to restore session from localStorage
+    // Restore session from localStorage
     const storedToken = localStorage.getItem(STORAGE_TOKEN_KEY)
     const storedUser = localStorage.getItem(STORAGE_USER_KEY)
 
@@ -124,19 +118,18 @@ export function useAuth() {
       user.value = JSON.parse(storedUser)
       isSignedIn.value = true
     } else {
-      // Clear stale data
       localStorage.removeItem(STORAGE_TOKEN_KEY)
       localStorage.removeItem(STORAGE_USER_KEY)
     }
 
-    // Load GIS and initialize
+    // Load GIS and initialize the library
     try {
       await loadGisScript()
       window.google.accounts.id.initialize({
         client_id: GOOGLE_CONFIG.clientId,
         callback: handleCredentialResponse,
         auto_select: true,
-        cancel_on_tap_outside: true,
+        use_fedcm_for_prompt: true,
       })
     } catch (err) {
       console.error('Failed to load Google Identity Services:', err)
@@ -145,37 +138,19 @@ export function useAuth() {
     isLoaded.value = true
   }
 
-  // Trigger Google Sign-In popup
-  const signIn = () => {
-    return new Promise((resolve, reject) => {
-      if (!window.google?.accounts?.id) {
-        reject(new Error('Google Identity Services not loaded'))
-        return
-      }
+  // Render Google's own sign-in button into a container element
+  // This is the most reliable sign-in method (no popup blocking, no FedCM issues)
+  const renderButton = (containerEl, options = {}) => {
+    if (!window.google?.accounts?.id || !containerEl) return
 
-      // Store resolve/reject for the callback
-      const originalCallback = handleCredentialResponse
-      window.google.accounts.id.initialize({
-        client_id: GOOGLE_CONFIG.clientId,
-        callback: (response) => {
-          originalCallback(response)
-          resolve()
-        },
-        cancel_on_tap_outside: true,
-      })
-
-      window.google.accounts.id.prompt((notification) => {
-        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          // Fallback: use the button-based flow via popup
-          // This happens when third-party cookies are blocked
-          window.google.accounts.id.renderButton(
-            document.createElement('div'),
-            { type: 'standard' }
-          )
-          // Try the One Tap prompt again or use redirect
-          reject(new Error('Sign-in popup was blocked. Please allow popups and try again.'))
-        }
-      })
+    window.google.accounts.id.renderButton(containerEl, {
+      type: 'standard',
+      theme: 'filled_black',
+      size: 'large',
+      text: 'continue_with',
+      shape: 'rectangular',
+      width: containerEl.offsetWidth || 400,
+      ...options,
     })
   }
 
@@ -194,7 +169,6 @@ export function useAuth() {
     if (idToken.value && !isTokenExpired(idToken.value)) {
       return idToken.value
     }
-    // Token expired — clear session
     if (idToken.value) {
       signOut()
     }
@@ -206,7 +180,7 @@ export function useAuth() {
     isLoaded: computed(() => isLoaded.value),
     user: computed(() => user.value),
     initialize,
-    signIn,
+    renderButton,
     signOut,
     getIdToken,
   }

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { getUserIdFromHeaders, unauthorized } from './utils/auth.js'
 
 const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages'
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
@@ -66,6 +67,10 @@ export const handler = async (event, context) => {
         }),
       }
     }
+
+    // Verify authentication
+    const userId = await getUserIdFromHeaders(event.headers)
+    if (!userId) return { ...unauthorized(), headers }
 
     // Parse request
     const { content, prompt, model = 'claude-sonnet-4-20250514', temperature = 0.7, max_tokens = 400, output_length = 'middle' } = JSON.parse(event.body)

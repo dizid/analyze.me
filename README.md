@@ -1,348 +1,195 @@
-# Grok AI Self-Analysis App
+# analyze.me
 
-A Vue 3 + Vite + Netlify application that integrates Google Docs with xAI's Grok AI for personal document analysis, featuring a stunning Cyberpunk Dashboard theme.
+AI-powered self-analysis platform. Connect your data sources — Google Docs, Gmail, Calendar, GitHub, Spotify, Twitter archives — and get psychological insights powered by Claude AI. Cyberpunk-themed Vue 3 app with gamification.
 
 ## Features
 
-- **Google Docs Integration**: OAuth authentication, document picker, and content fetching
-- **Grok AI Analysis**: Proxy via Netlify Functions with pre-configured and custom prompts
-- **Cyberpunk UI**: Dark backgrounds, neon accents (cyan, pink, lime), glitch effects, futuristic fonts
-- **Analysis Prompts**: 5 pre-configured options + custom textarea
-- **Results Display**: Markdown rendering with DOMPurify, PDF export, copy to clipboard
-- **History**: localStorage-based analysis history
+- **Multi-source data analysis** — Google Docs, Gmail, Calendar, GitHub, Spotify, Twitter archives, manual text
+- **8 analysis types** — Themes, sentiment, goals, strengths/weaknesses, self-improvement, email patterns, music mood, work-life balance
+- **Claude AI** — Powered by Anthropic's Claude (Sonnet/Haiku) via Netlify Functions
+- **Gamification** — XP, 20 levels, streaks, 25+ achievements
+- **Journal** — Mood-tracked entries stored in PostgreSQL
+- **Action items** — Extracts actionable recommendations from analyses
+- **Export** — Markdown rendering, copy to clipboard
+- **Cyberpunk UI** — Dark theme with neon accents, glitch effects, Orbitron font
 
 ## Tech Stack
 
-- **Frontend**: Vue 3 (Composition API), Vite
-- **Styling**: Tailwind CSS v4 (custom cyberpunk theme)
-- **Backend**: Netlify Functions
-- **APIs**: Google Drive API, Google Docs API, xAI Grok API
-
-## Prerequisites
-
-- Node.js 18+
-- npm or yarn
-- Google Cloud account (for OAuth credentials)
-- xAI API key (for Grok analysis)
-- Netlify account (for deployment)
+| Layer | Technology |
+|-------|------------|
+| Frontend | Vue 3 (Composition API), Vue Router 4, Vite 6 |
+| Styling | Tailwind CSS v4, custom cyberpunk theme |
+| Backend | Netlify Functions (Node.js 18) |
+| AI | Claude API (Anthropic) |
+| Auth | Google Sign-In (native GIS + JWT verification) |
+| Database | Neon PostgreSQL (serverless) |
+| Deployment | Netlify (auto-deploy from GitHub) |
 
 ## Getting Started
 
-### 1. Clone the Repository
+### 1. Clone & Install
 
 ```bash
 git clone https://github.com/dizid/analyze.me.git
 cd analyze.me
-```
-
-### 2. Install Dependencies
-
-```bash
 npm install
 ```
 
-### 3. Set Up Google OAuth Credentials
-
-Follow the detailed step-by-step guide in **[GOOGLE_SETUP.md](./GOOGLE_SETUP.md)** to:
-- Create a Google Cloud project
-- Enable Drive and Docs APIs
-- Configure OAuth consent screen
-- Get your Client ID and API Key
-
-### 4. Set Up xAI Grok API
-
-- Sign up at [x.ai](https://x.ai/)
-- Get your API key from the dashboard
-- Save it for step 5
-
-### 5. Configure Environment Variables
-
-Copy `.env.example` to `.env.local`:
+### 2. Set Up Environment Variables
 
 ```bash
 cp .env.example .env.local
 ```
 
-Edit `.env.local` and add your credentials:
+Edit `.env.local` with your credentials:
 
 ```env
-VITE_GOOGLE_CLIENT_ID=your_google_client_id_here
-VITE_GOOGLE_API_KEY=your_google_api_key_here
-VITE_NETLIFY_FUNCTIONS_URL=http://localhost:9999/.netlify/functions
+# Required
+ANTHROPIC_API_KEY=your-anthropic-api-key
+DATABASE_URL=postgresql://user:pass@host/dbname?sslmode=require
+VITE_GOOGLE_CLIENT_ID=your-google-client-id
+VITE_GOOGLE_API_KEY=your-google-api-key
+
+# Optional (for data source integrations)
+VITE_GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
+VITE_SPOTIFY_CLIENT_ID=your-spotify-client-id
+SPOTIFY_CLIENT_SECRET=your-spotify-client-secret
 ```
 
-For Netlify Functions (set in Netlify dashboard later):
-```env
-XAI_API_KEY=your_xai_grok_api_key
+### 3. Set Up Google OAuth
+
+Follow [GOOGLE_SETUP.md](./GOOGLE_SETUP.md) for step-by-step instructions on:
+- Creating a Google Cloud project
+- Enabling Drive, Docs, Gmail, Calendar APIs
+- Configuring OAuth consent screen
+- Getting Client ID and API Key
+
+### 4. Set Up Database
+
+Create a [Neon](https://neon.tech) project and run the schema:
+
+```bash
+# Apply schema to your Neon database
+psql $DATABASE_URL < db/schema.sql
 ```
 
-### 6. Run Development Server
+### 5. Run Development Server
 
 ```bash
 npm run dev
 ```
 
-The app will be available at [http://localhost:3000](http://localhost:3000).
-
-For Netlify Functions local development:
-
-```bash
-npm run netlify:dev
-```
-
-This starts both Vite dev server and Netlify Functions locally.
+App runs at [http://localhost:3000](http://localhost:3000) with Netlify Functions emulated via `@netlify/vite-plugin`.
 
 ## Project Structure
 
 ```
 analyze.me/
-├── netlify/
-│   └── functions/
-│       └── analyze.js              # Grok API proxy (TO BE IMPLEMENTED)
-├── public/
+├── netlify/functions/              # Server-side API
+│   ├── analyze.js                  # Claude AI proxy (rate-limited)
+│   ├── journal.js                  # Journal CRUD
+│   ├── user-sync.js                # Google user sync to DB
+│   ├── github-token.js             # GitHub OAuth token exchange
+│   ├── spotify-token.js            # Spotify OAuth token exchange
+│   └── utils/
+│       ├── auth.js                 # JWT verification
+│       └── db.js                   # Neon DB client
+├── db/
+│   └── schema.sql                  # PostgreSQL schema
 ├── src/
-│   ├── assets/
-│   │   └── styles/
-│   │       ├── main.css            # Tailwind v4 config + cyberpunk theme
-│   │       └── animations.css      # Glitch effects, holographic overlays
-│   ├── components/
-│   │   ├── GoogleAuth.vue          # OAuth & document selection (TO BE IMPLEMENTED)
-│   │   ├── GrokAnalysis.vue        # Prompt selection & analysis (TO BE IMPLEMENTED)
-│   │   ├── ResultDisplay.vue       # Results with markdown rendering (TO BE IMPLEMENTED)
-│   │   ├── ErrorDialog.vue         # Cyberpunk error modal (TO BE IMPLEMENTED)
-│   │   ├── LoadingSpinner.vue      # Neon loading animation ✅
-│   │   └── ui/
-│   │       ├── CyberpunkButton.vue # Reusable neon button ✅
-│   │       ├── CyberpunkPanel.vue  # Dashboard panel container ✅
-│   │       └── GlitchText.vue      # Animated glitch text ✅
-│   ├── composables/
-│   │   ├── useGoogleAuth.js        # Google OAuth logic (TO BE IMPLEMENTED)
-│   │   ├── useGrokAnalysis.js      # Grok API integration (TO BE IMPLEMENTED)
-│   │   ├── useAnalysisHistory.js   # localStorage management ✅
-│   │   ├── useMarkdownRenderer.js  # Safe markdown rendering ✅
-│   │   └── usePdfExport.js         # PDF generation ✅
-│   ├── config/
-│   │   ├── prompts.js              # Pre-configured analysis prompts ✅
-│   │   └── google.js               # Google API scopes & config ✅
-│   ├── utils/
-│   │   └── errorHandler.js         # Centralized error handling ✅
-│   ├── views/
-│   │   └── HomeView.vue            # Main dashboard layout (TO BE IMPLEMENTED)
-│   ├── App.vue                     # Root component (TO BE IMPLEMENTED)
-│   └── main.js                     # App entry point (TO BE IMPLEMENTED)
-├── .env.example                    # Environment variables template ✅
-├── .env.local                      # Local environment variables (create this) ✅
-├── .gitignore                      # Git ignore file ✅
-├── index.html                      # HTML entry point (TO BE IMPLEMENTED)
-├── netlify.toml                    # Netlify configuration ✅
-├── package.json                    # Dependencies ✅
-├── vite.config.js                  # Vite configuration ✅
-├── vitest.config.js                # Test configuration ✅
-├── GOOGLE_SETUP.md                 # Detailed Google OAuth setup guide ✅
-└── README.md                       # This file ✅
+│   ├── main.js                     # Vue app entry
+│   ├── App.vue                     # Root component
+│   ├── router/index.js             # Vue Router (10 routes)
+│   ├── views/                      # Page views
+│   │   ├── LandingView.vue         # Public landing
+│   │   ├── AuthView.vue            # Google Sign-In
+│   │   ├── HomeView.vue            # Main dashboard
+│   │   ├── JournalView.vue         # Journal entries
+│   │   ├── ProfileView.vue         # User profile
+│   │   ├── AchievementsView.vue    # Achievement showcase
+│   │   ├── DigestView.vue          # Weekly digest
+│   │   ├── CeoDashboardView.vue    # Project dashboard
+│   │   ├── PrivacyPolicyView.vue   # Privacy policy
+│   │   └── TermsOfServiceView.vue  # Terms of service
+│   ├── components/                 # Vue components
+│   │   ├── GoogleAuth.vue          # Auth wrapper
+│   │   ├── DataSourceSelector.vue  # Data source tabs
+│   │   ├── AnalysisPrompt.vue      # Prompt selection
+│   │   ├── ResultDisplay.vue       # Analysis results
+│   │   ├── ActionItems.vue         # Action items
+│   │   ├── ErrorDialog.vue         # Error modal
+│   │   ├── data-sources/           # Gmail, GitHub, Spotify, Calendar imports
+│   │   ├── gamification/           # XP, levels, streaks, achievements
+│   │   ├── dashboard/              # Project dashboard components
+│   │   ├── journal/                # Journal components
+│   │   └── ui/                     # Cyberpunk theme components
+│   ├── composables/                # Business logic (21 composables)
+│   │   ├── useAuth.js              # Google Sign-In state
+│   │   ├── useAnalysis.js          # Claude analysis wrapper
+│   │   ├── useJournal.js           # Journal CRUD
+│   │   ├── useGamification.js      # XP/levels/streaks
+│   │   ├── useGmailData.js         # Gmail integration
+│   │   ├── useGitHubData.js        # GitHub integration
+│   │   ├── useSpotifyData.js       # Spotify integration
+│   │   ├── useCalendarData.js      # Calendar integration
+│   │   ├── useTwitterArchive.js    # Twitter archive import
+│   │   └── ...                     # + 12 more
+│   ├── config/                     # App configuration
+│   │   ├── prompts.js              # 8 analysis prompts
+│   │   ├── google.js               # Google API config
+│   │   ├── gamification.js         # Levels & achievements
+│   │   ├── github.js               # GitHub OAuth config
+│   │   └── spotify.js              # Spotify OAuth config
+│   ├── utils/errorHandler.js       # Error handling
+│   ├── assets/styles/              # Tailwind + animations
+│   └── tests/                      # Vitest unit tests (15 files)
+├── .env.example                    # Environment variables template
+├── netlify.toml                    # Netlify build & headers config
+├── vite.config.js                  # Vite + Vue + Tailwind + Netlify plugins
+├── vitest.config.js                # Test configuration
+├── GOOGLE_SETUP.md                 # Google OAuth setup guide
+└── FEATURES.md                     # Feature overview
 ```
 
-## Implementation Status
-
-### ✅ Completed
-- Project setup and configuration
-- Tailwind CSS v4 with Cyberpunk theme
-- All reusable UI components (CyberpunkButton, CyberpunkPanel, GlitchText, LoadingSpinner)
-- Configuration files (Google, Analysis Prompts)
-- Utility composables (Markdown renderer, PDF export, Analysis history, Error handler)
-- Development environment setup
-- Comprehensive Google OAuth setup guide
-
-### 🚧 To Be Implemented
-1. **Google OAuth Composable** (`src/composables/useGoogleAuth.js`)
-   - Google Identity Services integration
-   - OAuth token management
-   - Document picker integration
-   - Content fetching from Google Docs
-
-2. **Netlify Function** (`netlify/functions/analyze.js`)
-   - Grok AI API proxy
-   - Rate limiting
-   - Request validation
-   - Error handling
-
-3. **Grok Analysis Composable** (`src/composables/useGrokAnalysis.js`)
-   - API call to Netlify Function
-   - Loading states
-   - Error handling
-
-4. **Main Components**:
-   - `GoogleAuth.vue` - OAuth UI and document selection
-   - `GrokAnalysis.vue` - Prompt selection and analysis trigger
-   - `ResultDisplay.vue` - Results with markdown and export
-   - `ErrorDialog.vue` - Cyberpunk-themed error modal
-
-5. **HomeView Dashboard** (`src/views/HomeView.vue`)
-   - 3-column responsive grid layout
-   - State management
-   - Component orchestration
-
-6. **App Entry Points**:
-   - `src/main.js` - Vue app initialization
-   - `src/App.vue` - Root component
-   - `index.html` - HTML with Google API scripts
-
-## Development Scripts
+## Scripts
 
 ```bash
-# Run development server (Vite only)
-npm run dev
-
-# Run with Netlify Functions
-npm run netlify:dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
-
-# Run tests
-npm test
-
-# Deploy to Netlify
-npm run netlify:deploy
+npm run dev              # Vite dev server (port 3000, Netlify functions emulated)
+npm run build            # Production build
+npm run preview          # Preview production build
+npm test                 # Run Vitest tests
+npm run netlify:dev      # Netlify CLI dev server (port 9999)
+npm run netlify:deploy   # Deploy to Netlify
 ```
-
-## Cyberpunk Theme
-
-The app features a custom Tailwind CSS v4 theme with:
-
-**Colors:**
-- Background: Deep black (#0a0a0f)
-- Panels: Translucent purple (rgba(45, 27, 61, 0.8))
-- Accents: Neon cyan (#00ffee), hot pink (#ff00ff), lime green (#00ff41)
-
-**Effects:**
-- Glitch animations on text
-- Neon glow shadows on buttons and panels
-- Holographic overlays
-- Scan line effects
-- Pulse animations
-
-**Fonts:**
-- Primary: Orbitron (futuristic sans-serif)
-- Code: Courier New (monospace)
 
 ## Security
 
-- ✅ XAI_API_KEY never exposed to client (Netlify Function only)
-- ✅ All markdown sanitized with DOMPurify
-- ✅ Rate limiting in Netlify Function (10 req/min per IP)
-- ✅ Input validation (max 50k chars for documents)
-- ✅ Google OAuth with proper scopes
-- ✅ CORS headers configured
+- Claude API key server-side only (never exposed to client)
+- Google JWT verification on all authenticated endpoints
+- Rate limiting on analyze endpoint (10 req/min/IP)
+- Content sanitized with DOMPurify
+- CSP headers configured in `netlify.toml`
+- Input validation (max 50k chars for documents)
+- CORS properly configured
+
+## Database Schema
+
+Tables: `users`, `user_gamification`, `analyses`, `journal_entries`, `usage_tracking`
+
+See [db/schema.sql](./db/schema.sql) for full schema.
 
 ## Deployment
 
-### Netlify Deployment
-
-1. **Connect GitHub Repository**:
-   - Go to Netlify dashboard
-   - Click "New site from Git"
-   - Connect to `dizid/analyze.me` repository
-
-2. **Configure Build Settings**:
-   - Build command: `npm run build`
-   - Publish directory: `dist`
-   - Functions directory: `netlify/functions`
-
-3. **Set Environment Variable**:
-   - In Netlify: Site settings → Environment variables
-   - Add: `XAI_API_KEY` = (your xAI API key)
-   - Add: `VITE_GOOGLE_CLIENT_ID` = (your Google Client ID)
-   - Add: `VITE_GOOGLE_API_KEY` = (your Google API Key)
-
-4. **Update Google OAuth**:
-   - Add your Netlify URL to authorized origins and redirect URIs
-   - See [GOOGLE_SETUP.md](./GOOGLE_SETUP.md) Step 8 for details
-
-5. **Publish OAuth App to Production**:
-   - By default, Google OAuth is in "Test" mode (max 100 users)
-   - To make your app public, you need to publish to Production
-   - See [GOOGLE_SETUP.md](./GOOGLE_SETUP.md) **Step 9** for complete guide
-   - **Quick steps**: Add privacy policy URL → Click "PUBLISH APP" in Google Console
-   - **Note**: App will show "unverified" warning (normal for personal apps)
-   - **Optional**: Apply for verification to remove warning (4-6 weeks)
-
-6. **Deploy**:
-   - Push to main branch or click "Deploy site"
-
-### Production Notes
-
-**OAuth Consent Screen Modes:**
-- **Test Mode** (default): Only 100 test users, good for development
-- **Production Mode**: Any Google user can access, required for public deployment
-- See Step 9 in [GOOGLE_SETUP.md](./GOOGLE_SETUP.md) for publishing guide
-
-**"Unverified App" Warning:**
-- Your app will show "Google hasn't verified this app" on first sign-in
-- This is normal for personal/small projects using Google APIs
-- Users click "Advanced" → "Go to [App Name]" to proceed
-- App functions normally after accepting
-- Optional: Apply for full verification to remove warning
-
-## Testing
-
-Unit tests for composables:
-
-```bash
-npm test
-```
-
-Manual testing checklist:
-- [ ] Google OAuth flow
-- [ ] Document selection and content fetch
-- [ ] All 5 pre-configured prompts
-- [ ] Custom prompt editing
-- [ ] Analysis results display
-- [ ] Markdown rendering
-- [ ] PDF export
-- [ ] History persistence
-- [ ] Error handling
-
-## Troubleshooting
-
-See [GOOGLE_SETUP.md](./GOOGLE_SETUP.md) for common Google OAuth issues.
-
-**Vite server not starting:**
-- Check Node version (18+)
-- Delete `node_modules` and `package-lock.json`, then `npm install`
-
-**Tailwind styles not loading:**
-- Check that `@import "tailwindcss"` is in `main.css`
-- Verify `@tailwindcss/vite` plugin in `vite.config.js`
-
-**Netlify Functions not working locally:**
-- Use `npm run netlify:dev` instead of `npm run dev`
-- Check `.env.local` has correct Netlify Functions URL
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-MIT License - See LICENSE file for details
-
-## Acknowledgments
-
-- [Vue.js](https://vuejs.org/)
-- [Vite](https://vitejs.dev/)
-- [Tailwind CSS v4](https://tailwindcss.com/)
-- [xAI Grok](https://x.ai/)
-- [Google Cloud Platform](https://cloud.google.com/)
-- [Netlify](https://www.netlify.com/)
+1. Connect GitHub repo (`dizid/analyze.me`) to Netlify
+2. Build command: `npm run build` | Publish: `dist/`
+3. Set environment variables in Netlify dashboard:
+   - `ANTHROPIC_API_KEY`, `DATABASE_URL`
+   - `VITE_GOOGLE_CLIENT_ID`, `VITE_GOOGLE_API_KEY`
+   - Optional: GitHub and Spotify OAuth credentials
+4. Update Google OAuth authorized origins with your Netlify URL
+5. Deploy (auto-deploys on push to `main`)
 
 ---
 
-**Built with** 🤖 **Claude Code** and ⚡ **xAI Grok**
+Built with Claude Code

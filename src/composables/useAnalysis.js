@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue'
 import axios from 'axios'
+import { useAuth } from './useAuth'
 
 // Use relative URL - works in production and with Vite proxy in development
 const FUNCTIONS_URL = import.meta.env.VITE_NETLIFY_FUNCTIONS_URL || '/.netlify/functions'
@@ -11,6 +12,7 @@ export function useAnalysis() {
   const isAnalyzing = ref(false)
   const analysisResult = ref(null)
   const error = ref(null)
+  const { getIdToken } = useAuth()
 
   const analyze = async (documentContent, prompt, options = {}) => {
     isAnalyzing.value = true
@@ -36,6 +38,7 @@ export function useAnalysis() {
           timeout: 60000, // 60 second timeout
           headers: {
             'Content-Type': 'application/json',
+            ...(getIdToken() ? { Authorization: `Bearer ${getIdToken()}` } : {}),
           },
         }
       )
