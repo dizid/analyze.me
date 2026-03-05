@@ -1,5 +1,6 @@
 import { getDb } from './utils/db.js'
 import { getUserIdFromHeaders, unauthorized } from './utils/auth.js'
+import { getCorsHeaders, handlePreflight } from './utils/cors.js'
 
 /**
  * Journal entries CRUD API
@@ -9,6 +10,8 @@ import { getUserIdFromHeaders, unauthorized } from './utils/auth.js'
  * DELETE /api/journal?id=N    - Delete entry
  */
 export const handler = async (event) => {
+  if (event.httpMethod === 'OPTIONS') return handlePreflight()
+
   const userId = await getUserIdFromHeaders(event.headers)
   if (!userId) return unauthorized()
 
@@ -98,7 +101,6 @@ export const handler = async (event) => {
         return json(405, { error: 'Method not allowed' })
     }
   } catch (err) {
-    console.error('journal error:', err)
     return json(500, { error: 'Internal server error' })
   }
 }
@@ -106,7 +108,7 @@ export const handler = async (event) => {
 function json(statusCode, data) {
   return {
     statusCode,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...getCorsHeaders() },
     body: JSON.stringify(data),
   }
 }

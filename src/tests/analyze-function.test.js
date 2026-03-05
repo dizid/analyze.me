@@ -7,6 +7,17 @@ vi.mock('axios', () => ({
   },
 }))
 
+// Mock auth - default to authenticated
+const mockGetUserId = vi.fn()
+vi.mock('../../netlify/functions/utils/auth.js', () => ({
+  getUserIdFromHeaders: (...args) => mockGetUserId(...args),
+  unauthorized: vi.fn(() => ({
+    statusCode: 401,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ error: 'Unauthorized' }),
+  })),
+}))
+
 import axios from 'axios'
 
 // We need to import the handler after mocking
@@ -20,6 +31,20 @@ describe('Analyze Netlify Function', () => {
     vi.resetModules()
     process.env.ANTHROPIC_API_KEY = 'test-api-key-123'
     process.env.ALLOWED_ORIGIN = 'http://localhost:3000'
+    process.env.VITE_GOOGLE_CLIENT_ID = 'test-client-id'
+
+    // Default: user is authenticated
+    mockGetUserId.mockResolvedValue('user-123')
+
+    // Re-mock after resetModules
+    vi.doMock('../../netlify/functions/utils/auth.js', () => ({
+      getUserIdFromHeaders: (...args) => mockGetUserId(...args),
+      unauthorized: vi.fn(() => ({
+        statusCode: 401,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Unauthorized' }),
+      })),
+    }))
 
     // Re-import to get fresh module with clean rate limit state
     const mod = await import('../../netlify/functions/analyze.js')
@@ -35,6 +60,7 @@ describe('Analyze Netlify Function', () => {
     httpMethod: 'POST',
     headers: {
       'x-forwarded-for': '127.0.0.1',
+      authorization: 'Bearer test-token',
     },
     body: JSON.stringify({
       content: 'Test document content for analysis.',
@@ -130,7 +156,7 @@ describe('Analyze Netlify Function', () => {
     it('should reject missing content', async () => {
       const event = {
         httpMethod: 'POST',
-        headers: { 'x-forwarded-for': '10.0.0.1' },
+        headers: { 'x-forwarded-for': '10.0.0.1', authorization: 'Bearer test-token' },
         body: JSON.stringify({ prompt: 'Analyze this', model: 'claude-sonnet-4-20250514', output_length: 'middle' }),
       }
       const result = await handler(event)
@@ -141,7 +167,7 @@ describe('Analyze Netlify Function', () => {
     it('should reject missing prompt', async () => {
       const event = {
         httpMethod: 'POST',
-        headers: { 'x-forwarded-for': '10.0.0.2' },
+        headers: { 'x-forwarded-for': '10.0.0.2', authorization: 'Bearer test-token' },
         body: JSON.stringify({ content: 'Some content', model: 'claude-sonnet-4-20250514', output_length: 'middle' }),
       }
       const result = await handler(event)
@@ -350,6 +376,30 @@ describe('Analyze Netlify Function', () => {
       const event = makeEvent({ _event: { headers: { 'x-forwarded-for': '10.0.0.15' } } })
       const result = await handler(event)
       expect(result.statusCode).toBe(500)
+    })
+  })
+
+  // ==========================================================================
+  // Authentication
+  // ==========================================================================
+  describe('Authentication', () => {
+    it('should return 401 when user is not authenticated', async () => {
+      mockGetUserId.mockResolvedValue(null)
+
+      const event = makeEvent({ _event: { headers: { 'x-forwarded-for': '10.0.0.20', authorization: 'Bearer bad-token' } } })
+      const result = await handler(event)
+      expect(result.statusCode).toBe(401)
+    })
+
+    it('should proceed when user is authenticated', async () => {
+      mockGetUserId.mockResolvedValue('user-456')
+      axios.post.mockResolvedValueOnce({
+        data: { content: [{ text: 'Result' }], usage: {} },
+      })
+
+      const event = makeEvent({ _event: { headers: { 'x-forwarded-for': '10.0.0.21', authorization: 'Bearer valid-token' } } })
+      const result = await handler(event)
+      expect(result.statusCode).toBe(200)
     })
   })
 

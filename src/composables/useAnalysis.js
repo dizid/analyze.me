@@ -59,7 +59,6 @@ export function useAnalysis() {
         // Retry on rate limit (429) with exponential backoff
         if (err.response?.status === 429 && attempt < maxRetries - 1) {
           const waitTime = Math.pow(2, attempt + 1) * 1000 // 2s, 4s, 8s
-          console.log(`Rate limited, retrying in ${waitTime}ms (attempt ${attempt + 1}/${maxRetries})`)
           await delay(waitTime)
           continue
         }
@@ -70,8 +69,6 @@ export function useAnalysis() {
     }
 
     // All retries failed - handle error
-    console.error('Analysis error:', lastError)
-
     if (lastError.code === 'ECONNABORTED') {
       error.value = 'Analysis timed out. Please try again.'
     } else if (lastError.response?.status === 429) {

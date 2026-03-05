@@ -30,7 +30,6 @@ export async function getUserIdFromHeaders(headers) {
     const payload = ticket.getPayload()
     return payload.sub
   } catch (err) {
-    console.error('Token verification failed:', err.message)
     return null
   }
 }

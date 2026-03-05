@@ -1,13 +1,16 @@
 import { getDb } from './utils/db.js'
 import { getUserIdFromHeaders, unauthorized } from './utils/auth.js'
+import { getCorsHeaders, handlePreflight } from './utils/cors.js'
 
 /**
  * POST /api/user-sync
  * Syncs user data from Google to database (called on first login).
  */
 export const handler = async (event) => {
+  if (event.httpMethod === 'OPTIONS') return handlePreflight()
+
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method not allowed' }
+    return { statusCode: 405, headers: getCorsHeaders(), body: 'Method not allowed' }
   }
 
   const userId = await getUserIdFromHeaders(event.headers)
@@ -39,14 +42,13 @@ export const handler = async (event) => {
 
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...getCorsHeaders() },
       body: JSON.stringify({ ok: true }),
     }
   } catch (err) {
-    console.error('user-sync error:', err)
     return {
       statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...getCorsHeaders() },
       body: JSON.stringify({ error: 'Internal server error' }),
     }
   }

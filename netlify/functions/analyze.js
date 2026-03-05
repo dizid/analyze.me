@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { getUserIdFromHeaders, unauthorized } from './utils/auth.js'
+import { getCorsHeaders, handlePreflight } from './utils/cors.js'
 
 const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages'
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
@@ -29,21 +30,10 @@ const ALLOWED_MODELS = ['claude-sonnet-4-20250514', 'claude-haiku-4-5-20251001']
 const ALLOWED_OUTPUT_LENGTHS = ['summary', 'middle', 'long']
 
 export const handler = async (event, context) => {
-  // CORS headers
-  const headers = {
-    'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGIN || 'http://localhost:3000',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  }
+  const headers = getCorsHeaders()
 
   // Handle preflight
-  if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers,
-      body: '',
-    }
-  }
+  if (event.httpMethod === 'OPTIONS') return handlePreflight()
 
   // Only allow POST
   if (event.httpMethod !== 'POST') {
@@ -124,7 +114,6 @@ export const handler = async (event, context) => {
 
     // Check API key
     if (!ANTHROPIC_API_KEY) {
-      console.error('ANTHROPIC_API_KEY not configured')
       return {
         statusCode: 500,
         headers,
@@ -173,8 +162,6 @@ export const handler = async (event, context) => {
       }),
     }
   } catch (error) {
-    console.error('Analysis function error:', error)
-
     let statusCode = 500
     let errorMessage = 'Internal server error'
 

@@ -69,8 +69,8 @@ async function syncUser(userData, token) {
         avatarUrl: userData.picture,
       }),
     })
-  } catch (err) {
-    console.error('User sync failed:', err)
+  } catch {
+    // Non-blocking sync failure — user can still use the app
   }
 }
 
@@ -79,10 +79,7 @@ function handleCredentialResponse(response) {
   const token = response.credential
   const payload = decodeJwtPayload(token)
 
-  if (!payload) {
-    console.error('Failed to decode Google ID token')
-    return
-  }
+  if (!payload) return
 
   const userData = {
     id: payload.sub,
@@ -131,8 +128,8 @@ export function useAuth() {
         auto_select: true,
         use_fedcm_for_prompt: true,
       })
-    } catch (err) {
-      console.error('Failed to load Google Identity Services:', err)
+    } catch {
+      // GIS failed to load — button won't render but app won't crash
     }
 
     isLoaded.value = true
@@ -170,6 +167,9 @@ export function useAuth() {
       return idToken.value
     }
     if (idToken.value) {
+      // Token expired — trigger silent re-auth via GIS prompt
+      // This will call handleCredentialResponse if user has an active Google session
+      window.google?.accounts?.id?.prompt()
       signOut()
     }
     return null
