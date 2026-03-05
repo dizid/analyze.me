@@ -9,7 +9,7 @@ import { getUserIdFromHeaders, unauthorized } from './utils/auth.js'
  * DELETE /api/journal?id=N    - Delete entry
  */
 export const handler = async (event) => {
-  const userId = getUserIdFromHeaders(event.headers)
+  const userId = await getUserIdFromHeaders(event.headers)
   if (!userId) return unauthorized()
 
   const sql = getDb()

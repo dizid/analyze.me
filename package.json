@@ -12,7 +12,6 @@
     "netlify:deploy": "netlify deploy --prod"
   },
   "dependencies": {
-    "@clerk/vue": "^2.0.1",
     "@fontsource/orbitron": "^5.1.2",
     "@googleapis/drive": "^19.2.0",
     "@neondatabase/serverless": "^1.0.2",

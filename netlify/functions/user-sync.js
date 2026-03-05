@@ -3,14 +3,14 @@ import { getUserIdFromHeaders, unauthorized } from './utils/auth.js'
 
 /**
  * POST /api/user-sync
- * Syncs user data from Clerk to database (called on first login).
+ * Syncs user data from Google to database (called on first login).
  */
 export const handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method not allowed' }
   }
 
-  const userId = getUserIdFromHeaders(event.headers)
+  const userId = await getUserIdFromHeaders(event.headers)
   if (!userId) return unauthorized()
 
   try {

@@ -1,22 +1,36 @@
+import { OAuth2Client } from 'google-auth-library'
+
+const GOOGLE_CLIENT_ID = process.env.VITE_GOOGLE_CLIENT_ID
+
+let oauthClient
+function getClient() {
+  if (!oauthClient) {
+    oauthClient = new OAuth2Client(GOOGLE_CLIENT_ID)
+  }
+  return oauthClient
+}
+
 /**
- * Extract and verify the user from the Clerk session token.
- * For Netlify Functions, we verify using the Clerk Backend SDK approach.
- * The frontend sends the session token in the Authorization header.
+ * Extract and verify the user from a Google ID token.
+ * Returns the Google 'sub' claim (stable user ID) or null.
  */
-export function getUserIdFromHeaders(headers) {
+export async function getUserIdFromHeaders(headers) {
   const authHeader = headers.authorization || headers.Authorization
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return null
   }
 
-  // In production, you'd verify the JWT with Clerk's public key.
-  // For MVP, we decode the JWT payload (the token is already verified client-side by Clerk).
   const token = authHeader.split(' ')[1]
   try {
-    // JWT structure: header.payload.signature — decode the payload
-    const payload = JSON.parse(atob(token.split('.')[1]))
-    return payload.sub // Clerk user ID
-  } catch {
+    const client = getClient()
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: GOOGLE_CLIENT_ID,
+    })
+    const payload = ticket.getPayload()
+    return payload.sub
+  } catch (err) {
+    console.error('Token verification failed:', err.message)
     return null
   }
 }
