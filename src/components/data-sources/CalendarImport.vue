@@ -115,7 +115,7 @@ import { useCalendarData } from '@/composables/useCalendarData'
 
 const emit = defineEmits(['content-ready', 'content-cleared'])
 
-const { isAuthenticated, getAccessToken, signIn } = useGoogleAuth()
+const { isAuthenticated, accessToken, signIn } = useGoogleAuth()
 const { isLoading, error, calendarData, fetchEvents, clearData } = useCalendarData()
 
 const isConnecting = ref(false)
@@ -137,7 +137,7 @@ const handleConnect = async () => {
 
 const handleFetch = async () => {
   try {
-    const token = await getAccessToken()
+    const token = accessToken.value
     await fetchEvents(token, {
       monthsBack: monthsBack.value,
       monthsForward: monthsForward.value,

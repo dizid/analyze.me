@@ -24,6 +24,7 @@ export function useAnalysis() {
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       try {
+        const token = getIdToken()
         const response = await axios.post(
         `${FUNCTIONS_URL}/analyze`,
         {
@@ -38,7 +39,7 @@ export function useAnalysis() {
           timeout: 60000, // 60 second timeout
           headers: {
             'Content-Type': 'application/json',
-            ...(getIdToken() ? { Authorization: `Bearer ${getIdToken()}` } : {}),
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
         }
       )
@@ -74,7 +75,7 @@ export function useAnalysis() {
     } else if (lastError.response?.status === 429) {
       error.value = 'Rate limit exceeded. Please wait a moment and try again.'
     } else if (lastError.response?.status === 401) {
-      error.value = 'Authentication failed. Please check API configuration.'
+      error.value = 'Session expired. Please sign in again to continue.'
     } else if (lastError.response?.data?.error) {
       error.value = lastError.response.data.error
     } else {

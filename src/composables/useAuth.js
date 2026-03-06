@@ -166,10 +166,8 @@ export function useAuth() {
     if (idToken.value && !isTokenExpired(idToken.value)) {
       return idToken.value
     }
+    // Token expired or missing — clear session, user must re-sign in
     if (idToken.value) {
-      // Token expired — trigger silent re-auth via GIS prompt
-      // This will call handleCredentialResponse if user has an active Google session
-      window.google?.accounts?.id?.prompt()
       signOut()
     }
     return null
