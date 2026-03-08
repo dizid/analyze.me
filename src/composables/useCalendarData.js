@@ -38,6 +38,12 @@ export function useCalendarData() {
       )
 
       if (!response.ok) {
+        if (response.status === 403) {
+          throw new Error('Calendar access denied. Please reconnect your Google account and grant Calendar permissions.')
+        }
+        if (response.status === 401) {
+          throw new Error('Calendar session expired. Please reconnect your Google account.')
+        }
         throw new Error(`Calendar API error: ${response.status}`)
       }
 

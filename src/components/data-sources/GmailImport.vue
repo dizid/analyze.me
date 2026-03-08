@@ -99,7 +99,7 @@ import { useGmailData } from '@/composables/useGmailData'
 
 const emit = defineEmits(['content-ready', 'content-cleared'])
 
-const { isAuthenticated, accessToken, signIn } = useGoogleAuth()
+const { isAuthenticated, accessToken, signIn, signOut } = useGoogleAuth()
 const { isLoading, error, emailData, fetchEmails, clearData } = useGmailData()
 
 const isConnecting = ref(false)
@@ -131,6 +131,10 @@ const handleFetch = async () => {
     })
   } catch (err) {
     console.error('Failed to fetch emails:', err)
+    // Auto-disconnect on auth errors so user can re-authenticate
+    if (err.message?.includes('access denied') || err.message?.includes('session expired')) {
+      signOut()
+    }
   }
 }
 

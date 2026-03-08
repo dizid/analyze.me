@@ -115,7 +115,7 @@ import { useCalendarData } from '@/composables/useCalendarData'
 
 const emit = defineEmits(['content-ready', 'content-cleared'])
 
-const { isAuthenticated, accessToken, signIn } = useGoogleAuth()
+const { isAuthenticated, accessToken, signIn, signOut } = useGoogleAuth()
 const { isLoading, error, calendarData, fetchEvents, clearData } = useCalendarData()
 
 const isConnecting = ref(false)
@@ -144,6 +144,10 @@ const handleFetch = async () => {
     })
   } catch (err) {
     console.error('Failed to fetch events:', err)
+    // Auto-disconnect on auth errors so user can re-authenticate
+    if (err.message?.includes('access denied') || err.message?.includes('session expired')) {
+      signOut()
+    }
   }
 }
 

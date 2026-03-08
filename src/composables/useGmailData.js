@@ -44,6 +44,12 @@ export function useGmailData() {
       )
 
       if (!listResponse.ok) {
+        if (listResponse.status === 403) {
+          throw new Error('Gmail access denied. Please reconnect your Google account and grant Gmail permissions.')
+        }
+        if (listResponse.status === 401) {
+          throw new Error('Gmail session expired. Please reconnect your Google account.')
+        }
         throw new Error(`Gmail API error: ${listResponse.status}`)
       }
 

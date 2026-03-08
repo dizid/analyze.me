@@ -101,10 +101,14 @@ export function useGoogleAuth() {
     }
   }
 
-  // Sign out
+  // Sign out — always clear local state, even if revoke fails (CSP can block it)
   const signOut = () => {
     if (accessToken.value) {
-      window.google.accounts.oauth2.revoke(accessToken.value)
+      try {
+        window.google.accounts.oauth2.revoke(accessToken.value)
+      } catch {
+        // Revoke may fail due to CSP or network — local cleanup still happens
+      }
     }
     isAuthenticated.value = false
     user.value = null
