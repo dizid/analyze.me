@@ -63,7 +63,7 @@ export const handler = async (event, context) => {
     if (!userId) return { ...unauthorized(), headers }
 
     // Parse request
-    const { content, prompt, model = 'claude-sonnet-4-20250514', temperature = 0.7, max_tokens = 400, output_length = 'middle' } = JSON.parse(event.body)
+    const { content, prompt, model = 'claude-haiku-4-5-20251001', temperature = 0.7, max_tokens = 400, output_length = 'middle' } = JSON.parse(event.body)
 
     // Input validation
     if (!ALLOWED_MODELS.includes(model)) {
