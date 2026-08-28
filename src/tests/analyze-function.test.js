@@ -32,6 +32,10 @@ describe('Analyze Netlify Function', () => {
     process.env.ANTHROPIC_API_KEY = 'test-api-key-123'
     process.env.ALLOWED_ORIGIN = 'http://localhost:3000'
     process.env.VITE_GOOGLE_CLIENT_ID = 'test-client-id'
+    // These tests exercise the real (still-present) Anthropic-calling code path,
+    // which is now gated behind DEMO_MODE=false. Production defaults to demo mode
+    // on — see the "Demo mode" describe block below and AI-COST-RISK.md.
+    process.env.DEMO_MODE = 'false'
 
     // Default: user is authenticated
     mockGetUserId.mockResolvedValue('user-123')
@@ -376,6 +380,40 @@ describe('Analyze Netlify Function', () => {
       const event = makeEvent({ _event: { headers: { 'x-forwarded-for': '10.0.0.15' } } })
       const result = await handler(event)
       expect(result.statusCode).toBe(500)
+    })
+  })
+
+  // ==========================================================================
+  // Demo mode (default-on cost guard — see AI-COST-RISK.md)
+  // ==========================================================================
+  describe('Demo mode', () => {
+    it('should default to demo mode and never call Anthropic when DEMO_MODE is unset', async () => {
+      vi.resetModules()
+      delete process.env.DEMO_MODE
+
+      const mod = await import('../../netlify/functions/analyze.js')
+      const event = makeEvent({ _event: { headers: { 'x-forwarded-for': '10.0.0.30' } } })
+      const result = await mod.handler(event)
+      const body = JSON.parse(result.body)
+
+      expect(result.statusCode).toBe(200)
+      expect(axios.post).not.toHaveBeenCalled()
+      expect(typeof body.analysis).toBe('string')
+      expect(body.analysis.length).toBeGreaterThan(0)
+      expect(body.usage).toEqual({ input_tokens: 0, output_tokens: 0 })
+    })
+
+    it('should work in demo mode even without ANTHROPIC_API_KEY configured', async () => {
+      vi.resetModules()
+      delete process.env.ANTHROPIC_API_KEY
+      delete process.env.DEMO_MODE
+
+      const mod = await import('../../netlify/functions/analyze.js')
+      const event = makeEvent({ _event: { headers: { 'x-forwarded-for': '10.0.0.31' } } })
+      const result = await mod.handler(event)
+
+      expect(result.statusCode).toBe(200)
+      expect(axios.post).not.toHaveBeenCalled()
     })
   })
 

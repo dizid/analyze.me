@@ -5,6 +5,34 @@ import { getCorsHeaders, handlePreflight } from './utils/cors.js'
 const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages'
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
 
+// Default-on demo mode: real Anthropic calls are gated behind this flag until
+// explicitly opted out. Set DEMO_MODE=false in Netlify env vars (+ redeploy) to
+// enable live AI calls. See AI-COST-RISK.md for why this was added.
+const DEMO_MODE = (process.env.DEMO_MODE ?? 'true') !== 'false'
+
+// Mock analyses returned while DEMO_MODE is on. Mirrors the real handler's markdown
+// shape (see lengthInstructions/structuredFormat below) so the frontend renders it
+// identically to a live response.
+const MOCK_ANALYSIS_SUMMARY = `- Your recent activity shows a steady, consistent rhythm rather than sudden spikes.
+- One theme recurs often enough across the content to be worth naming explicitly.
+- There's a small but noticeable gap between what you're spending time on and what you describe as your priorities.`
+
+const MOCK_ANALYSIS_STRUCTURED = `## Key Takeaways
+- Your recent activity shows a steady, consistent rhythm rather than sudden spikes.
+- One theme recurs often enough across the content to be worth naming explicitly.
+- There's a small but noticeable gap between what you're spending time on and what you describe as your priorities.
+
+## Analysis
+Looking across what you shared, the overall pattern is more consistent than it might feel day-to-day. A handful of entries stand out from the baseline, and those are usually the moments worth paying closer attention to. The recurring theme above shows up often enough that it's likely shaping decisions even when it isn't top of mind.
+
+## Action Steps
+- Revisit the standout entries above and note what made them different from the baseline.
+- Name the recurring theme explicitly the next time it comes up in a decision.
+- Check whether your calendar and time allocation actually match the priorities you'd state out loud.`
+
+const getMockAnalysis = (outputLength) =>
+  outputLength === 'summary' ? MOCK_ANALYSIS_SUMMARY : MOCK_ANALYSIS_STRUCTURED
+
 // Simple in-memory rate limiting (for production, use Redis or similar)
 const requestCounts = new Map()
 const RATE_LIMIT = 10 // requests per minute
@@ -112,8 +140,9 @@ export const handler = async (event, context) => {
       }
     }
 
-    // Check API key
-    if (!ANTHROPIC_API_KEY) {
+    // Check API key — only required when demo mode is off, since the demo
+    // path below never calls Anthropic.
+    if (!DEMO_MODE && !ANTHROPIC_API_KEY) {
       return {
         statusCode: 500,
         headers,
@@ -121,6 +150,21 @@ export const handler = async (event, context) => {
       }
     }
 
+    // --- Demo mode: return a mock analysis, never call Anthropic. ---
+    // Everything above (rate limiting, auth, input validation) is unchanged —
+    // only the paid Anthropic call itself is gated. See AI-COST-RISK.md.
+    if (DEMO_MODE) {
+      return {
+        statusCode: 200,
+        headers: { 'Content-Type': 'application/json', ...headers },
+        body: JSON.stringify({
+          analysis: getMockAnalysis(output_length),
+          usage: { input_tokens: 0, output_tokens: 0 },
+        }),
+      }
+    }
+
+    // --- Live implementation below, unreachable while DEMO_MODE=true ---
     // Call Claude API
     const response = await axios.post(
       CLAUDE_API_URL,
